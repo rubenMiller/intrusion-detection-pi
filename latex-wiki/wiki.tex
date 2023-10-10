@@ -1,0 +1,25 @@
+\documentclass{article}
+
+\begin{document}
+
+\section{Systemadministration Projekt}
+
+Hier sind die Dateien für das Projekt \textit{"Systemadministration"} enthalten. Sowohl das Projekt an sich als auch die Dokumentation.
+
+\subsection{Projektteilnehmer}
+\begin{itemize}
+    \item Bene(dikt?) Geiger
+    \item Ruben Miller
+\end{itemize}
+
+\section{Grundidee}
+
+Überwachung eines Systems durch IDS, die auf einem Raspberry Pi laufen.
+
+\subsection{Genauere Skizze}
+
+Auf dem Raspberry Pi sollen IDS laufen, die sowohl die Disk als auch das Netzwerk überwachen. Der Raspberry Pi soll dabei von dem überwachten System nicht kontrolliert werden können. Das sollte so sein, da bei einem erfolgreichen Angriff dieser unmöglich verändert werden kann, noch besser wäre, wenn dieser nicht entdeckbar ist.
+
+Der Raspberry Pi soll dann in regelmäßigen Abständen die Festplatte kontrollieren, beispielsweise über einen Cronjob mit \texttt{aide} (dabei werden Hashwerte von Dateien erstellt, gespeichert und dann mit neueren Ständen verglichen). Eine Untersuchung des Netzwerks funktioniert nur bei laufendem Betrieb, daher muss der Raspberry Pi immer angeschlossen sein.
+
+\end{document}
