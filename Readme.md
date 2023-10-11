@@ -3,7 +3,7 @@
 Hier sind die Dateien für das Projekt "Systemadministration" enthalten. Sowohl das Projekt an sich, als auch die Dokumentation.
 
 Projektteilnehmher:
- - Bene(dikt?) Geiger
+ - Benedikt Geiger
  - Ruben Miller
 
  
