@@ -29,7 +29,13 @@ In regelmäßigen Abständen wird diese Referenzdatenbank dann mit neueren Stän
 
 ### Network-Scan
 
-Beim Network Scan, wird der Raspberry als Gateway und als DNS-Server zwischen den Server und das Internet geschaltet. Die auf ihm befindliche Software scannt alle Pakete die ein und aus gehen nach Auffälligkeiten, wie zum Beispiel gesetzte aber unübliche HTTP-Flags, unübliche Größen, oder als unsicher markierte Sende-IP-Adressen. Zudem kann hier ein Pi-Hole integriert werden, welches mit enormen Blocklisten und schnellen RegEx-Filter basierten Regeln schon erste Angriffe verhindern kann. 
+Beim Network Scan, wird der Raspberry als Gateway und als DNS-Server zwischen den Server und das Internet geschaltet. Die auf ihm befindliche Software scannt alle Pakete die ein und aus gehen nach Auffälligkeiten. Hier gibt es zwei verschiedene Ansätze: Signaturbasierte IDS und anomaliebasierten IDS.
+
+Bei einem signaturbasierten IDS, auch bekannt als wissensbasiertes IDS, wird nach Regeln oder Mustern für bekannten bösartigen Datenverkehr gesucht. Bei einem anomaliebasierten IDS, auch bekannt als verhaltensbasiertes IDS, ist die Aktivität, die den Datenverkehr generiert hat, weitaus wichtiger als die zugestellte Nutzlast.
+
+Ein auf Anomalien basierendes IDS-Tool basiert auf Baselines und nicht auf Signaturen. Es wird nach ungewöhnlichen Aktivitäten gesucht, die vom statistischen Durchschnitt früherer Aktivitäten oder zuvor gesehener Aktivitäten abweichen. Wenn sich beispielsweise ein Benutzer immer von Kalifornien aus in das Netzwerk einloggt und auf technische Dateien zugreift, ist dies ein Warnsignal, wenn sich derselbe Benutzer von Peking aus anmeldet und sich HR-Dateien ansieht.
+
+Zudem kann hier ein Pi-Hole integriert werden, welches mit enormen Blocklisten und schnellen RegEx-Filter basierten Regeln schon erste Angriffe verhindern kann. 
 
 
 
