@@ -16,7 +16,7 @@ Projektteilnehmher:
 Auf dem Raspberry Pi sollen IDS laufen, die sowohl die Disc als auch das Netzwerk überwachen.
 Der Raspberry Pi soll dabei von dem überwachten System nicht kontrolliert werden können, da bei einem erfolgreichen Angriff dieser unmöglich verändert werden kann. Noch besser wäre, wenn dieser nicht entdeckbar ist.
 
-### Disc-Scan
+#### Disc-Scan
 
 Der Raspberry Pi soll in regelmäßigen Abstanden die Festplatte kontrollieren, bspw ein cronjob mit aide.
 
@@ -27,13 +27,13 @@ In regelmäßigen Abständen wird diese Referenzdatenbank dann mit neueren Stän
 
 
 
-### Network-Scan
+#### Network-Scan
 
 Beim Network Scan, wird der Raspberry als Gateway und als DNS-Server zwischen den Server und das Internet geschaltet. Die auf ihm befindliche Software scannt alle Pakete die ein und aus gehen nach Auffälligkeiten, wie zum Beispiel gesetzte aber unübliche HTTP-Flags, unübliche Größen, oder als unsicher markierte Sende-IP-Adressen. Zudem kann hier ein Pi-Hole integriert werden, welches mit enormen Blocklisten und schnellen RegEx-Filter basierten Regeln schon erste Angriffe verhindern kann. 
 
 
 
-## Technologien
+### Technologien
 
 Wir verwenden zum Scannen die Technologie [Advanced Intrusion Detection Environment kurz AIDE](https://de.wikipedia.org/wiki/Advanced_Intrusion_Detection_Environment). Hier kann untersucht werden, ob zusätzlich noch Software wie [inotify](https://wiki.ubuntuusers.de/inotify/) oder [Trusted timestamping](https://en.wikipedia.org/wiki/Trusted_timestamping) sinnvoll ist, um den Vorgang zu beschleunigen und Rechenleistung zu sparen. Zudem kann hier noch ein Standard Antivirenprogramm für einfache Angriffe wie [ClamAV](https://www.clamav.net/) verwendet werden.
 
@@ -41,7 +41,7 @@ Für Network Scans verwenden wir entweder [Zeek](https://zeek.org/) oder [Surica
 
 All diese Technologien sind Kostenfrei und Open-Source.
 
-# Roadmap
+## Roadmap
 
 - [ ] Installation Skript
   - [ ] Skript für den Server, welches (wenn nicht vorhanden) ein Zertifikat erstellt, auf dem PI hinterlegt und dem PI alle nötigen Informationen über den Server gibt
