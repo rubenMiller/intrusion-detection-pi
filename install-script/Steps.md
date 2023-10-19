@@ -127,3 +127,5 @@ sudo service smbd restart
    read only = yes
    write list = ids-pi
 ```
+## Further reading
+[Linux + how to give only specific user to read the file - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/401207/linux-how-to-give-only-specific-user-to-read-the-file)
