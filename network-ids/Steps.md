@@ -89,84 +89,38 @@ sudo suricata -T -c /etc/suricata/suricata.yaml -v
    10/23/2023-18:08:24.853327  [**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 18.66.122.21:80 -> 192.168.178.84:44064
    ```
 
-## Iptables
+## Traffic forwarding
 
-Important, but complicate. We need to forward anything the servers give us, otherwise they wouldn't have internet (which is pretty secure but also destroys the concept of having a server)
+That the clients have internet, the Raspberry needs to be configurated to forward the Traffic.
 
-The following is from: [Raspberry Pi Firewall and Intrusion Detection System : 14 Steps - Instructables](https://www.instructables.com/Raspberry-Pi-Firewall-and-Intrusion-Detection-Syst/) the scripts are in `./iptables`
+1. Install IPTables:
+   
+   ```bash
+   sudo apt instal iptables
+   ```
 
-Below, you will find a very restrictive firewall script. You may need to modify it to fit your needs as it will block websites not on standards ports (80/443), and softwares not using HTTP/HTTPS/FTP ports (P2P, Skype, Google Talk, etc...).  
+2. **Accept incoming Connections**:  Make sure, that incoming connections for already made connections and for local access to the Raspberry are accepted. Usually, this is already configurated. To test use `iptables -L INPUT`
 
-If you do not wish that level of security, there's also a more straightforward firewall script that is basically "set and forget".  
+3. **Activate forwarding**: To use the Raspberry as Gateway, we need to activate IP-Forwarding:
+   
+   Edit `/etc/sysctl.conf`
+   
+   Search for `#net.ipv4.ip_forward=1` and uncomment it
+   
+   Save
 
-You can chose between firewall.advanced or firewall.simple, and then customise it. Credits go to Guillaume Kaddouch  
+4. Apply changes: 
+   
+   ```bash
+   sudo sysctl -p /etc/sysctl.conf
+   ```
 
-### A - Advanced ruleset
+5. **NAT-Konfiguration (Network Address Translation)**: Add a NAT-Rule in IPTABLES, to route outgoing connections over the pi.
+   
+   ```bash
+   sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+   ```
+   
+   *Hint: Make sure `eth0` is the correct Networkinterface*
 
-This script basically does the following :  
-
-- Blocks inbound/outbound invalid TCP flags (even from established flows)  
-- Optimises DNS queries (IP TOS field)  
-- Identifies traffic by flow type, and then match it against a ruleset  
-- Adds randomness to the NAT process  
-- Only allow few outbound standard ports (http, https, ftp)  
-- Logs accurately what is dropped and avoid log flood  
-- Drops inbound packets with low TTL (could mean a ttl expiry attack or a traceroute)  
-- Detect & block outbound malware connections  
-
-```bash
-$ sudo touch /etc/firewall.advanced
-$ sudo touch /etc/firewall.flows
-$ sudo chmod u+x /etc/firewall.*
-```
-
-The flows identification is a list of rules directing the traffic into the matching custom chain (e.g FORWARD_OUT, FORWARD_IN, LAN_IN, etc...). This list of rules, once debugged and validated, should not be modified afterwards. Also, as they use some space in the script and could be boring to read, it makes the filtering rules harder to read if they are on the same script. That's why I move them in a separate file, that I just call from the main script :  
-
-```bash
-$ sudo vi /etc/firewall.flows
-```
-
-*File [firewall.flows.sh](./firewall.flows.sh)*
-
-Now we will create the filtering rules script talked earlier :
-
-```bash
-$ sudo vi /etc/firewall.advanced
-```
-
-*File [firewall.advanced.sh](./firewall.advanced.sh)*
-
-### B - Basic ruleset
-
-This script basically does the following :  
-
-- Blocks inbound/outbound invalid TCP flags (even from established flows)  
-- Optimises DNS queries (IP TOS field)  
-- Adds randomness to the NAT process  
-- Drops inbound packets with low TTL (could mean a ttl expiry attack or a traceroute)
-
-This ruleset allows everything from your LAN to be forwarded on the Internet, thus theoretically not requiring to be modified afterwards. If you want to add an extra layer of network security for your grandmother or parents for instance, but that you cannot expect them to modify iptables rules(!), I think that this ruleset is more appropriate.
-
-```bash
-$ sudo vi /etc/firewall.simple
-```
-
-*File [firewall.simple.sh](./firewall.simple.sh)*
-
-These two rulesets are just examples, if you have one ready use your own.  
-
-To load iptables rules at startup, one way is to do as follow :
-
-```bash
-$ sudo vi /etc/rc.local
-echo "Loading iptables rules"
-/etc/firewall.VERSION >> /dev/nul
-```
-
-Replace VERSION with either "advanced" or "simple", without quotes, depending on the script you are using.
-
-If you want to display alerts in realtime, type the following :
-
-```bash
-$ sudo tail -f /var/log/iptables.log
-```
+6. **Firewall Rules for Suricata**: Be sure to create IPTables rules for Suricata to monitor and/or block traffic from your internal network. These rules should be included in your existing IPTables rules configuration. You can add specific rules for Suricata in the FORWARD chain.
