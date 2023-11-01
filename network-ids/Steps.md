@@ -158,3 +158,100 @@ When routing all network traffic through the Raspberry Pi, accessing the server 
    - Idea: Give one Adapter multiple Addresses and route all traffic to this subnet
    
    ![WIP Subnet diagram](assets/2023-11-01-15-44-31-image.png)
+
+## Evebox
+
+Tutorial from [How-To: Installing EveBox for Managing Events and Alerts from Suricata - YouTube](https://youtu.be/XXHCs2oZjHw?si=GVhr_j1vJHvUUfHj) and [Intro | EveBox](https://evebox.org/docs/)
+
+### Installation
+
+```bash
+sudo apt-get install wget gnupg apt-transport-https
+wget -qO - https://evebox.org/files/GPG-KEY-evebox | sudo apt-key add -
+echo "deb http://evebox.org/files/debian stable main" | sudo tee /etc/apt/sources.list.d/evebox.list
+sudo apt-get update
+sudo apt-get install evebox
+```
+
+### Configuration
+
+Notes:
+
+- Configuration file: `/etc/evebox/evebox.yaml`
+- Data directory: `/var/lib/evebox`
+- When started from systemd, the EveBox server will run as the user `evebox` which has write access to `/var/lib/evebox`.
+- We are using SQLite
+
+`/etc/evebox/evebox.yaml`:
+
+```yaml
+data-directory: /var/lib/evebox
+
+http:
+ host: "0.0.0.0"
+
+database:
+  type: sqlite
+
+  # Automatically delete events older than 7 days.
+  retention:
+    days: 7
+    size: "20 GB"
+
+
+# This should automatically be there:
+# The server can process events itself when using SQLite or a classic
+# Logstash style Elasticsearch template.
+input:
+  enabled: false
+
+  # Suricata EVE file patterns to look for and read.
+  paths:
+    - "/var/log/suricata/eve.json"
+    - "/var/log/suricata/eve.*.json"
+```
+
+`/etc/evebox/agent.yaml`:
+
+```yaml
+server:
+  url: http://127.0.0.1:5636
+
+input:
+  paths:
+    - "/var/log/suricata/eve.json"
+    - "/var/log/suricata/eve.*.json"
+```
+
+```bash
+sudo systemctl enable evebox.service
+sudo systemctl enable evebox-agent.service
+sudo systemctl start evebox.service
+sudo systemctl start evebox-agent.service
+```
+
+For more Information on those configs, there are the full config-files in [./evebox configs/](./evebox\ configs/)
+
+### Debugging
+
+Sadly, I needed to find this out:
+
+```bash
+# systemctl
+sudo systemctl status evebox
+
+# journalctl (and search for evebox) (Hint: Type 'G' to go to End)
+journalctl
+
+# evebox itself
+sudo -u evebox RUST_BACKTRACE=1 RUST_BACKTRACE=full evebox server -c /etc/evebox/evebox.yaml -v
+
+# -u evebox uses the evebox user
+# RUST_BACKTRACE=1 and RUST_BACKTRACE=full are enviroment variables. You can test if only the first is enaught
+# -c is our configuration
+# -v is more output by evebox itself
+
+# evebox itself 2
+sudo -u evebox evebox server -D /var/lib/evebox --datastore sqlite --input /var/log/suricata/eve.json
+# Test if evebox works with this specific configuration. Note, WOthout exposing host, you can only access it local
+```
