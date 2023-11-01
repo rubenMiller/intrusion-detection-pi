@@ -2,6 +2,8 @@
 
 Hint: Server will be configured in [install-script](../install-script/Steps.md)
 
+[TOC]
+
 ## Installing Suricata
 
 Using a combination of [2. Quickstart guide — Suricata 7.0.3-dev documentation](https://docs.suricata.io/en/latest/quickstart.html), [3. Installation — Suricata 7.0.3-dev documentation](https://docs.suricata.io/en/latest/install.html#debian), [How-To: Installing Suricata in Ubuntu from PPA - YouTube](https://www.youtube.com/watch?v=zBlYESOSqpY&list=PLFqw30a25lWRIhAnQNb7ZaPpexPYgxhVv&index=2) and [Installing & Configuring Suricata - YouTube](https://www.youtube.com/watch?v=UXKbh0jPPpg)
@@ -124,3 +126,35 @@ That the clients have internet, the Raspberry needs to be configurated to forwar
    *Hint: Make sure `eth0` is the correct Networkinterface*
 
 6. **Firewall Rules for Suricata**: Be sure to create IPTables rules for Suricata to monitor and/or block traffic from your internal network. These rules should be included in your existing IPTables rules configuration. You can add specific rules for Suricata in the FORWARD chain.
+
+## Unexpected Problem
+
+When routing all network traffic through the Raspberry Pi, accessing the server from the internet becomes more complex due to the following reasons: Setting the Raspberry Pi as the gateway for the server means that all traffic passes through the Raspberry Pi's IDS system before heading to the internet. However, when accessing the server through the Internet, two options arise, each with its own set of advantages and disadvantages:
+
+1. Directly contact the Server from the Network
+   
+   - Pro: We don't have to select, which Server to use because it is determined through the IP-Address
+   
+   - Con: The IDS won't see any traffic and would only scan outgoing traffic => not really helpful
+   
+   - Idea: use IPTables to rout all in- and outgoing traffic first through the Pi?
+     
+     ![WIP Direct diagram](assets/2023-11-01-15-42-27-image.png)
+
+2. Using the Pi as "proxy". Now, we set the Pi as gateway, so it scans everything outgoing. Next step is to set the Pi as "server" and forward all traffic to the real server after passing it to the IDS
+   
+   - Pro: I know how to do it and could be really easy
+   - Con: How to determine which connections are for the pi and which are for the Server (For example: SSH connecting to the Pi or the Server?)
+   - Con: How to determine which server to forward to, if we have multiple connected?
+   - Idea: Use Pi as reverse proxy?
+   
+   ![WIP Proxy diagram](assets/2023-11-01-15-43-57-image.png)
+
+3. Making a own subnet, add route to this net on the Router to be accessed over the Pi
+   
+   - Pro: Could be very easy
+   - Pro: Easily determine which Server to access
+   - Con: We only have one LAN-Interface (usually if we don't want to use an additional adapter)
+   - Idea: Give one Adapter multiple Addresses and route all traffic to this subnet
+   
+   ![WIP Subnet diagram](assets/2023-11-01-15-44-31-image.png)
