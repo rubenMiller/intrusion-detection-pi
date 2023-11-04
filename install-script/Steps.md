@@ -107,7 +107,10 @@ done
 
 # set Pi as DNS and Gateway
 echo "nameserver $pi_ip" > /etc/resolv.conf
-echo "GATEWAY=$pi_ip" >> /etc/sysconfig/network
+
+outbound_interface="$(ip route get 8.8.8.8 | grep -oP 'dev \K[^ ]+')"
+sudo ip route del default
+sudo ip route add default via $pi_ip dev $outbound_interface
 ```
 
 ## Versuch 2: SMB Share statt eines Nutzers
