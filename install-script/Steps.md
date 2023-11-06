@@ -4,7 +4,11 @@
 
 - Set up Raspberry
 
+- Create `key` directory
+
 - Generate SSH-Key: `ssh-keygen`
+
+- move to key directory
 
 - Get IP of PI
 
@@ -13,13 +17,19 @@
 - Create smb-share to upload host-configs
 
 ```bash
+ssh-keygen
 sudo mkdir -p /ids/host-configs
+sudo mkdir -p /ids/key
+sudo chown -R nobody:nogroup /ids/key
+sudo chmod -R 777 /ids/key/
+cp ~/.ssh/id_rsa.pub /ids/key
 sudo chown -R nobody:nogroup /ids/server-configs
 sudo chmod -R 777 /ids/host-configs/
 sudo apt-get install samba samba-common-bin
 # after below:
 sudo smbpasswd -a ids-pi # 'nG4AghLw' is password. Errors can be ignored
 sudo nano /etc/samba/smb.conf
+sudo service smbd restart
 ```
 
 ```text
@@ -27,6 +37,13 @@ sudo nano /etc/samba/smb.conf
    path = /ids/host-configs
    writeable = yes
    browsable = no
+   guest ok = yes
+   guest account = ids-pi
+
+[key]
+   path = /ids/key
+   writeable = no
+   browsable = yes
    guest ok = yes
    guest account = ids-pi
 ```
@@ -66,13 +83,24 @@ set -e
 # Read ip of IDS-Pi
 read -p "Please enter the IP-Address of the IDS-PI: " pi_ip
 
+echo "Installing requirements... "
+# Requirements: smbclient, 
+sudo apt update
+sudo apt install smbclient iptables iptables-persistent #-y can be added to automate
+echo "Done!"
+echo .
+
+echo "Generating user 'ids-pi'... "
 # Generate user for the PI
 # Username of the IDS-PI
 pi_user="ids-pi"
 
 useradd $pi_user
 usermod -L $pi_user  # Locks the account
+echo "Done!"
+echo .
 
+echo "Generating config for pi..."
 # List of files to add read permissions for the Pi
 declare -a files=("datei1" "datei2" "datei3")
 
@@ -87,48 +115,38 @@ for file in "${files[@]}"; do
     echo "File=$file" >> $config_file
 done
 
-# Install smbclient
-sudo apt update
-sudo apt install smbclient -y
-
-# Copy config to Pi
+# Copy config to Pi using smbclient (see requirements)
 smbclient //"$pi_ip"/"configs" -U "$pi_user"%"nG4AghLw" -c "put $config_file"
 
 # Remove temp file
 rm $config_file
 
+echo "Done!"
+echo .
+
+echo "Adding pi's ssh-key"
 # Get public SSH-Key of Pi
-ssh-keyscan $pi_ip >> /home/$pi_user/.ssh/known_hosts
+smbclient //"$pi_ip"/"key" -U "$pi_user"%"nG4AghLw" -c "get id_rsa.pub"
+cat id_rsa.pub >> /home/$pi_user/.ssh/authorized_keys
+rm id_rsa.pub
+
+echo "Done!"
+echo .
 
 # Add reading permissions for ids-pi for all relevat files
-for file in "${files[@]}"; do
-    chmod +r $file
-done
+# TODO: Do so when config is configurated
+#for file in "${files[@]}"; do
+    #chmod +r $file
+#done
 
-# set Pi as DNS and Gateway
-echo "nameserver $pi_ip" > /etc/resolv.conf
+# TODO: set Pi as DNS (change when PiHole is ready)
+# echo "nameserver $pi_ip" > /etc/resolv.conf
 
-outbound_interface="$(ip route get 8.8.8.8 | grep -oP 'dev \K[^ ]+')"
-sudo ip route del default
-sudo ip route add default via $pi_ip dev $outbound_interface
+# Send a copy of all packets to the pi for scanning
 ```
 
-## Versuch 2: SMB Share statt eines Nutzers
-
-Pi:
-
-```bash
-sudo apt-get install samba samba-common-bin
-sudo nano /etc/samba/smb.conf
-#nach Config
-sudo service smbd restart
-```
-
-```ini
-[configs-share]
-   path = /home/ids-pi/configs
-   read only = yes
-   write list = ids-pi
-```
 ## Further reading
+
 [Linux + how to give only specific user to read the file - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/401207/linux-how-to-give-only-specific-user-to-read-the-file)
+
+[resolv.conf - Debian Wiki](https://wiki.debian.org/resolv.conf)
