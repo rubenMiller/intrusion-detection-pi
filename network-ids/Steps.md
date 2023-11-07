@@ -91,6 +91,8 @@ sudo suricata -T -c /etc/suricata/suricata.yaml -v
    10/23/2023-18:08:24.853327  [**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 18.66.122.21:80 -> 192.168.178.84:44064
    ```
 
+For this to work, we need `iptables`. Further investigations needed!
+
 ## Traffic forwarding (outdated)
 
 That the clients have internet, the Raspberry needs to be configurated to forward the Traffic.
