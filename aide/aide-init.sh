@@ -2,12 +2,15 @@
 # This script connects to the server and checks whether aide is installed and the integrity of it, if it is installed.
 # Then it creates the database future comparisons will be made to.+
 
+# debug mode
+set -x
+
 # fail on error
 set -e
 
 
 export SERVERIP="141.69.97.99"
-export HOSTIP=(hostname -I | awk '{print $1}')
+export HOSTIP=$(hostname -I | awk '{print $1}')
 
 # ssh-connection needs to be working at this point, use certificate
 ssh aideuser@$SERVERIP
