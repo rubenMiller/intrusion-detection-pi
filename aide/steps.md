@@ -10,6 +10,9 @@ useradd -m -s /bin/bash -g users -G sudo -p $(openssl passwd -1 password) $pi_us
 su $pi_user
 sudo mkdir /aide/
 sudo chown $pi_user /aide/
+
+sudo apt install acl
+sudo setfacl -m $pi_user:r-x /aide/*
 ```
 
 Add the following lines with
@@ -40,4 +43,6 @@ ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
     exit 1;
     fi;
     sudo aide --config=/home/$pi_user/aide/aide.conf --init"
+
+scp $pi_user@$SERVERIP:/aide/aide.db.new ~/aide-$(date +%F_%T).db
 ```
