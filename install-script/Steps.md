@@ -23,7 +23,7 @@ sudo mkdir -p /ids/key
 sudo chown -R nobody:nogroup /ids/key
 sudo chmod -R 777 /ids/key/
 cp ~/.ssh/id_rsa.pub /ids/key
-sudo chown -R nobody:nogroup /ids/server-configs
+sudo chown -R nobody:nogroup /ids/host-configs
 sudo chmod -R 777 /ids/host-configs/
 sudo apt-get install samba samba-common-bin
 sudo nano /etc/samba/smb.conf
