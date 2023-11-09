@@ -44,5 +44,8 @@ ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
     fi;
     sudo aide --config=/home/$pi_user/aide/aide.conf --init"
 
-scp $pi_user@$SERVERIP:/aide/aide.db.new ~/aide-$(date +%F_%T).db
+mkdir ~/aide-dbs/
+export DATE=$(date +%F_%T)
+scp $pi_user@$SERVERIP:/aide/aide.db.new ~/aide-dbs/aide-$DATE.db
+ln -s ~/aide-dbs/aide-$DATE.db ~/recent-aide-db
 ```

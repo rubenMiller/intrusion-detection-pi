@@ -8,23 +8,22 @@ set -e
 # This method needs two arguments: the IP of the Server and the IP of the Host
 function runAideForHost() {
         SERVERIP=$1
-        HOSTIP=$2
         #TODO this doe snot work that way, change
         # ssh-connection needs to be working at this point, use certificate
         # ssh aideuser@$SERVERIP
 
 
         # push the initial database from the raspberry
-        scp aideuser@$SERVERIP:/var/lib/aide/aide.db /var/lib/aide/aide.db
+        scp ~/recent-aide-db aideuser@$SERVERIP:/aide/aide.db
 
         # push the aide config from the raspberry
-        scp aideuser@$SERVERIP:/etc/aide/aide.conf /etc/aide/aide.conf
+        scp /etc/aide/aide.conf aideuser@$SERVERIP:~/aide/aide.conf
 
-        ssh aideuser@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ]; 
-            then echo 'The package aide will be (re-)installed.'; 
-            apt-get --reinstall install aide; 
-            fi; 
-            aide --config=/etc/aide/aide.conf --check"
+    ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
+        then echo 'Aide needs to be reinstalled!';
+        exit 1;
+        fi;
+        sudo aide --config=/home/$pi_user/aide/aide.conf --init"
 }
 
 # Path to host configs
