@@ -1,5 +1,6 @@
 #!/bin/bash
-# This script connects to the server and checks whether aide is installed and the integrity of it, if it is installe># Then it pulls the initial database and compares it with the current state of the disk
+# This script runs on the raspberry Pi and starts the check on the server
+
 
 # fail on error
 set -e
@@ -7,27 +8,22 @@ set -e
 # This method needs two arguments: the IP of the Server and the IP of the Host
 function runAideForHost() {
         SERVERIP=$1
-        HOSTIP=$2
-
+        #TODO this doe snot work that way, change
         # ssh-connection needs to be working at this point, use certificate
-        ssh aideuser@$SERVERIP
-
-        dpkg -V aide
-
-        if [ $? -ne 0 ]; then
-                echo "The package aide will be (re-)installed."
-                apt-get --reinstall install aide
-        fi
+        # ssh aideuser@$SERVERIP
 
 
-        # pull the initial file from the raspery
-        scp readonlyuser@$HOSTIP:/var/lib/aide/aide.db /var/lib/aide/aide.db
+        # push the initial database from the raspberry
+        scp ~/recent-aide-db aideuser@$SERVERIP:/aide/aide.db
 
-        # pull the aide configuration
-        scp readonlyuser@$HOSTIP:/etc/aide/aide.conf /etc/aide/aide.conf
+        # push the aide config from the raspberry
+        scp /etc/aide/aide.conf aideuser@$SERVERIP:~/aide/aide.conf
 
-        # compare the current state of the disk with the initial database
-        aide --config=/etc/aide/aide.conf --check
+    ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
+        then echo 'Aide needs to be reinstalled!';
+        exit 1;
+        fi;
+        sudo aide --config=/home/$pi_user/aide/aide.conf --init"
 }
 
 # Path to host configs
