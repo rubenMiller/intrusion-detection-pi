@@ -24,9 +24,6 @@ Dabei werden Hashwerte von relevanten Dateien (wie Configs oder binaries) erstel
 
 In regelmäßigen Abständen wird diese Referenzdatenbank dann mit neueren Ständen der Dateien verglichen, um Abweichungen zu finden. Hier kann noch untersucht werden, ob Technologien wie `inotify` oder `trusted timestamping` sinnvoll sind um dem Server Zeit und Rechenleistung zu ersparen, hinderlich sind, oder sogar ein Sicherheitsrisiko.
 
-
-
-
 #### Network-Scan
 
 Beim Network Scan, wird der Raspberry als Gateway und als DNS-Server zwischen den Server und das Internet geschaltet. Die auf ihm befindliche Software scannt alle Pakete die ein und aus gehen nach Auffälligkeiten. Hier gibt es zwei verschiedene Ansätze: Signaturbasierte IDS und anomaliebasierten IDS.
@@ -36,8 +33,6 @@ Bei einem signaturbasierten IDS, auch bekannt als wissensbasiertes IDS, wird nac
 Ein auf Anomalien basierendes IDS-Tool basiert auf Baselines und nicht auf Signaturen. Es wird nach ungewöhnlichen Aktivitäten gesucht, die vom statistischen Durchschnitt früherer Aktivitäten oder zuvor gesehener Aktivitäten abweichen. Wenn sich beispielsweise ein Benutzer immer von Kalifornien aus in das Netzwerk einloggt und auf technische Dateien zugreift, ist dies ein Warnsignal, wenn sich derselbe Benutzer von Peking aus anmeldet und sich HR-Dateien ansieht.
 
 Zudem kann hier ein Pi-Hole integriert werden, welches mit enormen Blocklisten und schnellen RegEx-Filter basierten Regeln schon erste Angriffe verhindern kann. 
-
-
 
 ### Technologien
 
