@@ -1,84 +1,7 @@
-# Steps
-
-## Pi
-
-- Set up Raspberry
-
-- Create `key` directory
-
-- Generate SSH-Key: `ssh-keygen`
-
-- move to key directory
-
-- Get IP of PI
-
-- Create `configs` directory
-
-- Create smb-share to upload host-configs
-
-```bash
-ssh-keygen
-sudo mkdir -p /ids/host-configs
-sudo mkdir -p /ids/key
-sudo chown -R nobody:nogroup /ids/key
-sudo chmod -R 777 /ids/key/
-cp ~/.ssh/id_rsa.pub /ids/key
-sudo chown -R nobody:nogroup /ids/host-configs
-sudo chmod -R 777 /ids/host-configs/
-sudo apt-get install samba samba-common-bin
-sudo nano /etc/samba/smb.conf
-# after below:
-sudo smbpasswd -a ids-pi # 'nG4AghLw' is password. Errors can be ignored
-sudo service smbd restart
-```
-
-```text
-[configs]
-   path = /ids/host-configs
-   writeable = yes
-   browsable = no
-   guest ok = yes
-   guest account = ids-pi
-
-[key]
-   path = /ids/key
-   writeable = no
-   browsable = yes
-   guest ok = yes
-   guest account = ids-pi
-```
-
-Comments to the above:
-
-A smb-share to upload the host-configs
-
-## Server
-
-- Set up Server
-
-### Script
-
-- Read IP of PI
-
-- Add new User for IDS-PI
-  
-  - Don't need home?
-  
-  - Needs Read-Permissions for all necessary files
-
-- Get SSH-key from IDS-Pi so it can log in under it's IDS-Pi user
-
-- Tell Pi IP, Hostname and necessary files of Server
-
-- Set DNS to Address of PI
-
-- Set gateway to IP of Pi
-
-```bash
 #!/bin/bash
 set -x # Debugging: Print command before printing
 # Exit on error
-set -e
+# set -e
 
 # Read ip of IDS-Pi
 read -p "Please enter the IP-Address of the IDS-PI: " pi_ip
@@ -155,12 +78,3 @@ echo
 
 # Send a copy of all packets to the pi for scanning
 echo "All done!"
-```
-
-Hint: If there are errors with this script, use `dos2unix`
-
-## Further reading
-
-[Linux + how to give only specific user to read the file - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/401207/linux-how-to-give-only-specific-user-to-read-the-file)
-
-[resolv.conf - Debian Wiki](https://wiki.debian.org/resolv.conf)
