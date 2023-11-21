@@ -3,10 +3,9 @@
 ## On server
 
 ```bash
+pi_user="ids-pi"
 
-pi_user="pi-user"
-
-useradd -m -s /bin/bash -g users -G sudo -p $(openssl passwd -1 password) $pi_user
+useradd -m -s /bin/bash -N -G sudo -p $(openssl passwd -1 password) $pi_user
 su $pi_user
 sudo mkdir /aide/
 sudo chown $pi_user /aide/
@@ -29,7 +28,7 @@ pi-user ALL = NOPASSWD: /usr/bin/dpkg -V
 ## On pi
 
 ```bash
-pi_user="pi-user"
+pi_user="ids-pi"
 SERVERIP="192..."
 
 ssh-copy-id -i ~/.ssh/id_rsa.pub $pi_user@$SERVERIP
