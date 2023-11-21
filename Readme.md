@@ -44,21 +44,21 @@ All diese Technologien sind Kostenfrei und Open-Source.
 
 ## Roadmap
 
-- [ ] Installation Skript
-  - [ ] Skript für den Server, welches (wenn nicht vorhanden) ein Zertifikat erstellt, auf dem PI hinterlegt und dem PI alle nötigen Informationen über den Server gibt
-- [ ] Netzwerk Traffic scannen
-  - [ ] Pihole als erste Instanz (Nicht wirklich zum Scannen geeignet, aber zur Intrusion Protection)
-  - [ ] Zum Scannen:
+- [x] Installation Skript
+  - [x] Skript für den Server, welches (wenn nicht vorhanden) ein Zertifikat erstellt, auf dem PI hinterlegt und dem PI alle nötigen Informationen über den Server gibt
+  - [ ] TODO: IPv6
+- [x] Netzwerk Traffic scannen
+  - [x] Pihole als erste Instanz (Nicht wirklich zum Scannen geeignet, aber zur Intrusion Protection)
+  - [x] Zum Scannen:
     - [Home - Suricata](https://suricata.io/)
-- [ ] Disc Scannen
-  - [ ] wird mittels des SSH-Zertifikats vom PI aus gestartet
-  - [ ] Server macht die Arbeit
-  - [ ] Welche Directories brauchen wir?
-  - [ ] Zusätzlich: Virenscann?
-  - [ ] von welchen Dateien brauchen wir den Hash um ihn auf dem Pi zu speichern? Können wir eine Vorauswall mittels **zuverlässigem** Timestamp treffen?
-  - [ ] Wie verarbeitet der PI die Daten?
-    - [ ] Datenbank
-    - [ ] Abgleichen mittels eigener Software
+- [x] Disc Scannen
+  - [x] wird mittels des SSH-Zertifikats vom PI aus gestartet
+  - [x] Server macht die Arbeit
+  - [x] Welche Directories brauchen wir? (Vorauswahl von AIDE selbst)
+  - [x] von welchen Dateien brauchen wir den Hash um ihn auf dem Pi zu speichern? Können wir eine Vorauswall mittels **zuverlässigem** Timestamp treffen? (Nicht benötigt)
+  - [x] Wie verarbeitet der PI die Daten?
+    - [x] Datenbank
+    - [x] AIDE
 - [ ] Angriff gefunden, was dann?
   - [ ] Server runterfahren?
   - [ ] Internet blocken?
@@ -66,7 +66,7 @@ All diese Technologien sind Kostenfrei und Open-Source.
   - [ ] Admin benachrichtigen?
     - [ ] Wie?
     - [ ] Evebox für Suricata [EveBox | EveBox](https://evebox.org/)
-- [ ] Zusatz: Readonly filesystem für Ausfallsicherheit [How to make your Raspberry Pi file system read-only (Raspbian Stretch) | by Andreas Schallwig | Medium](https://medium.com/@andreas.schallwig/how-to-make-your-raspberry-pi-file-system-read-only-raspbian-stretch-80c0f7be7353)
+- [ ] Zusatz: Readonly filesystem für Ausfallsicherheit [How to make your Raspberry Pi file system read-only (Raspbian Stretch) | by Andreas Schallwig | Medium](https://medium.com/@andreas.schallwig/how-to-make-your-raspberry-pi-file-system-read-only-raspbian-stretch-80c0f7be7353) (nein)
 
 ## Quellen zum Nachlesen
 
