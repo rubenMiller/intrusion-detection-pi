@@ -78,7 +78,7 @@ A smb-share to upload the host-configs
 
 ```bash
 #!/bin/bash
-set -x # Debugging: Print command before printing
+# set -x # Debugging: Print command before printing
 # Exit on error
 set -e
 
@@ -88,7 +88,7 @@ read -p "Please enter the IP-Address of the IDS-PI: " pi_ip
 echo "Installing requirements... "
 # Requirements: smbclient, 
 sudo apt update
-sudo apt install smbclient iptables iptables-persistent sudo acl systemd-resolved resolvconf #-y can be added to automate
+sudo apt install smbclient iptables iptables-persistent sudo acl systemd-resolved aide #-y can be added to automate
 echo "Done!"
 echo 
 
@@ -105,8 +105,8 @@ sudo usermod -L $pi_user  # Locks the account
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/aide" >> /etc/sudoers'
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/dpkg -V" >> /etc/sudoers'
 
-sudo -u $pi_user mkdir /aide/
-sudo setfacl -m $pi_user:r-x /aide/*
+sudo -u $pi_user mkdir /home/$pi_user/aide/
+sudo setfacl -m $pi_user:r-x /home/$pi_user/aide/
 echo "Done!"
 echo 
 
@@ -140,14 +140,9 @@ echo
 
 echo "Configuring AIDE..."
 smbclient //"$pi_ip"/"pi-public" -U "$pi_user"%"nG4AghLw" -c "get aide.conf"
-smbclient //"$pi_ip"/"pi-public" -U "$pi_user"%"nG4AghLw" -c "get aide-init.sh"
-sudo -u $pi_user mkdir -p /home/$pi_user/aide/
-mv aide.conf /home/$pi_user/aide/aide.conf
-mv aide-init.sh /home/$pi_user/aide/init.sh
+sudo mv aide.conf /home/$pi_user/aide/aide.conf
 sudo chown $pi_user /home/$pi_user/aide/*
 
-sudo -u $pi_user sudo aide --config=/home/$pi_user/aide/aide.conf --init
-# TODO: Datenbank muss jetzt auf den Server. Wie? (Darf die Alte nicht überschreiben, da Sicherheitsrisiko)
 echo "Done!"
 echo 
 
@@ -167,8 +162,9 @@ echo
 echo "Setting up PiHole..."
 # Set Pi as DNS
 old_dns="$(resolvectl --no-pager |grep Server |cut -d " " -f 6)"
-sudo pi_ip=$pi_ip /bin/bash -c "echo 'nameserver $pi_ip' > /etc/resolvconf/resolv.conf.d/head"
-sudo old_dns=$old_dna /bin/bash -c "echo 'nameserver $old_dns' > /etc/resolvconf/resolv.conf.d/head"
+sudo pi_ip=$pi_ip /bin/bash -c "echo 'DNS=$pi_ip' >> /etc/systemd/resolved.conf"
+#sudo old_dns=$old_dna /bin/bash -c "echo 'FallbackDNS=$old_dns' >> /etc/systemd/resolved.conf"
+sudo service systemd-resolved restart
 
 echo "Done!"
 echo 
