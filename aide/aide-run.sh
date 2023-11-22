@@ -1,48 +1,61 @@
 #!/bin/bash
 # This script runs on the raspberry Pi and starts the check on the server
 
-
 # fail on error
 set -e
 
-# This method needs two arguments: the IP of the Server and the IP of the Host
+# This method needs three arguments:
+# 	1. the IP of the Server 
+# 	2. the Path to the AIDE-Folder with the DB and server-config (generated in install-script)
+# 	3. the User to log in on the server (generated in install-script)
 function runAideForHost() {
         SERVERIP=$1
-        #TODO this doe snot work that way, change
-        # ssh-connection needs to be working at this point, use certificate
-        # ssh aideuser@$SERVERIP
+		AIDE_FOLDER=$2
+		AIDE_USER=$2
 
 
         # push the initial database from the raspberry
-        scp ~/recent-aide-db aideuser@$SERVERIP:/aide/aide.db
+        scp $AIDE_FOLDER/recent-aide-db $AIDE_USER@$SERVERIP:/aide/aide.db
 
         # push the aide config from the raspberry
-        scp /etc/aide/aide.conf aideuser@$SERVERIP:~/aide/aide.conf
+        scp /etc/aide/aide.conf $AIDE_USER@$SERVERIP:~/aide/aide.conf
 
-    ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
-        then echo 'Aide needs to be reinstalled!';
-        exit 1;
-        fi;
-        sudo aide --config=/home/$pi_user/aide/aide.conf --init"
+		ssh $AIDE_USER@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
+			then echo 'Aide needs to be reinstalled!';
+			exit 1;
+			fi;
+			sudo aide --config=~/aide/aide.conf --init"
+		
+		# Copy File back to PI
+		export DATE=$(date +%F_%T)
+		scp $pi_user@$SERVERIP:/var/lib/aide/aide.db.new $AIDE_FOLDER/aide-$DATE.db
+		
+		# TODO: Compare
+		# TODO: Output in /ids/aide/results/result-<host>.json anhängen udn datei Erstellen wenn nicht existiert
+		
 }
 
-# Path to host configs
-config_dir="/ids/host-configs"
+# Path to aide dbs, see Steps-Pi.md
+db_dir=/ids/aide/aide-dbs/
 
-# Ip of host
-hostip="$(hostname -I | awk '{print $1}')"
+# IDS-Pi User on Host. Specified in install-script
+pi_user="ids-pi"
 
-# Loop for all configs in this directory
-for config_file in "$config_dir"/*; do
-    if [ -f "$config_file" ]; then
-        # search for "IP="
-        while IFS= read -r line; do
-            if [[ $line == IP=* ]]; then
-                # Separate the line at "=" and get the IP
-                IFS="=" read -ra parts <<< "$line"
-                runAideForHost ${parts[1]} ${hostip}
-                break
-            fi
-        done < "$config_file"
-    fi
+# Loop for all directorys (represent hosts to scan) in this directory
+for folder in $db_dir*/; do
+	echo "$folder"
+	# Loop for all files in this directory to find our server-config
+	for file in $folder/*; do
+		if  [[ -f $file ]] && [[ $file == */config-* ]]; then
+			# search for "IP="
+			while IFS= read -r line; do
+				if [[ $line == IP=* ]]; then
+					# Separate the line at "=" and get the IP
+					IFS="=" read -ra parts <<< "$line"
+					runAideForHost ${parts[1]} ${folder} ${pi_user}
+					break
+				fi
+			done < "$file"
+		fi
+	done
 done

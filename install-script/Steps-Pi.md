@@ -61,8 +61,8 @@ host_config=$(grep -rl "IP=$HOSTIP" /ids/host-configs/)
 hostname=$(awk -F= -v key="Hostname" '$1==key {print $2}' $host_config)
 
 # push the aide config from the raspberry
-scp  $pi_user@$HOSTIP:~/aide/aide.conf
-scp ~/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh
+scp /etc/aide/aide.conf $pi_user@$HOSTIP:~/aide/aide.conf
+scp /ids/aide/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh
 
 ssh $pi_user@$HOSTIP"dpkg -V aide; if [ $? -ne 0 ];
     then echo 'Aide needs to be reinstalled!';
@@ -70,14 +70,17 @@ ssh $pi_user@$HOSTIP"dpkg -V aide; if [ $? -ne 0 ];
     fi;
     sudo aide --config=/home/$pi_user/aide/aide.conf --init"
 
-mkdir -p ~/aide-dbs/$hostname
+mkdir -p /ids/aide/aide-dbs/$hostname
 export DATE=$(date +%F_%T)
-scp $pi_user@$SERVERIP:/aide/aide.db.new ~/aide-dbs/$hostname/aide-$DATE.db
-ln -s ~/aide-dbs/$hostname/aide-$DATE.db ~/aide-dbs/$hostname/recent-aide-db
+scp $pi_user@$SERVERIP:/var/lib/aide/aide.db.new /ids/aide/aide-dbs/$hostname/aide-$DATE.db
+ln -s /ids/aide/aide-dbs/$hostname/aide-$DATE.db /ids/aide/aide-dbs/$hostname/recent-aide-db
+mv $host_config /ids/aide/aide-dbs/$hostname/
 ```
+
+## Pihole
+
+See [Installation of Pihole](../pihole/steps.md)
 
 ## Suricata & Evebox
 
 See [Installation of Suricata & Evebox](../network-ids/Steps.md)
-
-
