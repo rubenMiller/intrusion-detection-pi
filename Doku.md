@@ -51,3 +51,11 @@ Ein raspberry ist klein und weit verbreitet, deswegen bietet er sich sehr gut an
 Aide kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Dies geschieht, indem Hashwerte für ausgeählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden.
 
 Da aide diese Änderungen nicht sortiert, ist eine gute Auswahl dieser sehr wichtig. Werden etwa log-files beachtet, wird die Ausgabe sehr schnell zugemüllt. Dateien die sich seltener ändern, wie etwa Programme, sind dafür ideal. Außer nach einem Update sollten dort keine Änderungen auftreten.
+
+
+### Network Intrusion Detection
+
+
+### Intrusion Prevention
+
+Besser als einen Angriff zu entdecken, ist ihn zu verhindern. Die allermeisten Angriffe finden über das Internet statt und oft genug sind dabei bereits bekannte Webseiten im Spiel. Das Blocken von solch bekannten Webseiten kann Angriffe verhindern, bevor sie überhaupt stattgefunden haben. Dazu wird der Server so konfiguriert, dass er seine DNS-Auflösung über den Rapsberry Pi abhandelt. Dieser kann dann mit der Technologie "PiHole" Websites blockieren. Für dieses gibt es umfangreiche Listen mit bekannten, potenziell schädlichen Websites.
