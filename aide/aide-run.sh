@@ -20,19 +20,20 @@ function runAideForHost() {
         # push the aide config from the raspberry
         scp /etc/aide/aide.conf $AIDE_USER@$SERVERIP:~/aide/aide.conf
 
-		ssh $AIDE_USER@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
+
+		ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
 			then echo 'Aide needs to be reinstalled!';
 			exit 1;
 			fi;
-			sudo aide --config=~/aide/aide.conf --init"
+			sudo aide --config=/home/$pi_user/aide/aide.conf --init;
+			sudo aide --config=/home/$pi_user/aide/aide.conf --compare > /aide/output"
 		
-		# Copy File back to PI
+		# Pull files back to PI
 		export DATE=$(date +%F_%T)
-		scp $pi_user@$SERVERIP:/var/lib/aide/aide.db.new $AIDE_FOLDER/aide-$DATE.db
-		
-		# TODO: Compare
-		# TODO: Output in /ids/aide/results/result-<host>.json anhängen udn datei Erstellen wenn nicht existiert
-		
+		scp $pi_user@$SERVERIP:/aide/aide.db.new $AIDE_FOLDER/aide-$DATE.db
+		scp $pi_user@$SERVERIP:/aide/output $AIDE_FOLDER/output-$DATE		
+		ln -s ~/aide-dbs/aide-$DATE.db ~/recent-aide-db
+	
 }
 
 # Path to aide dbs, see Steps-Pi.md
