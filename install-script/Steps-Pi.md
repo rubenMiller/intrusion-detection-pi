@@ -62,17 +62,18 @@ hostname=$(awk -F= -v key="Hostname" '$1==key {print $2}' $host_config)
 
 # push the aide config from the raspberry
 scp /etc/aide/aide.conf $pi_user@$HOSTIP:~/aide/aide.conf
-scp /ids/aide/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh
+# scp /ids/aide/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh #deprecated
 
-ssh $pi_user@$HOSTIP"dpkg -V aide; if [ $? -ne 0 ];
+ssh $pi_user@$HOSTIP "dpkg -V aide; if [ $? -ne 0 ];
     then echo 'Aide needs to be reinstalled!';
     exit 1;
     fi;
-    sudo aide --config=/home/$pi_user/aide/aide.conf --init"
+    sudo aide --config=/home/$pi_user/aide/aide.conf --before=\"database_out=file:/home/$pi_user/aide/aide.db.new\" --init
+    sudo chown -R $pi_user /home/$pi_user/aide"
 
 mkdir -p /ids/aide/aide-dbs/$hostname
 export DATE=$(date +%F_%T)
-scp $pi_user@$SERVERIP:/var/lib/aide/aide.db.new /ids/aide/aide-dbs/$hostname/aide-$DATE.db
+scp $pi_user@$HOSTIP:/home/$pi_user/aide/aide.db.new /ids/aide/aide-dbs/$hostname/aide-$DATE.db
 ln -s /ids/aide/aide-dbs/$hostname/aide-$DATE.db /ids/aide/aide-dbs/$hostname/recent-aide-db
 mv $host_config /ids/aide/aide-dbs/$hostname/
 ```

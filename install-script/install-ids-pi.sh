@@ -25,6 +25,7 @@ sudo usermod -L $pi_user  # Locks the account
 # Give him some permissions
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/aide" >> /etc/sudoers'
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/dpkg -V" >> /etc/sudoers'
+sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /bin/chown -R $pi_user /home/$pi_user/*" >> /etc/sudoers'
 
 sudo -u $pi_user mkdir /home/$pi_user/aide/
 sudo setfacl -m $pi_user:r-x /home/$pi_user/aide/
