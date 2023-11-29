@@ -223,6 +223,7 @@ input:
   paths:
     - "/var/log/suricata/eve.json"
     - "/var/log/suricata/eve.*.json"
+    - "/ids/aide/output-eve.json"
 ```
 
 ```bash

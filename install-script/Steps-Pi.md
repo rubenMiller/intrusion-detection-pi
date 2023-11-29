@@ -46,7 +46,7 @@ sudo apt install samba samba-common-bin aide iptables wget gnupg apt-transport-h
    sudo service smbd restart
    ```
 
-4. Also `/etc/aide/aide.conf` and `aide-init.sh` (from this repo) should be included in `/ids/pi-public`
+4. Also `<gitRepo>/aide/aide.conf`, `aide-run.sh` and `aide_to_eve.py` (from this repo) should be included in `/ids/aide`
 
 ## TODO: Manually adding Host on PI
 
