@@ -1,0 +1,36 @@
+to: rubenmiller25@web.de
+From: hammerboy.r1@mail.com
+MIME-Version: 1.0
+Content-Type: text; charset=utf-8
+Subject: These files were changed on your serverThese files were changed on your server:
+
+|:-----------|:-----------------------------------------------------------------------------------|
+| name       | /home/ruben/Documents/AAAStudium/Semester-7/systemadministration/aide-test/aide.db |
+| status     | added                                                                              |
+| attributes | f+++++++++++++++++                                                                 |
+| timestamp  | 2023-11-29T13:29:35.651566Z                                                        | 
+
+|:-----------|:---------------------------------------------------------------------------------------|
+| name       | /home/ruben/Documents/AAAStudium/Semester-7/systemadministration/aide-test/output.json |
+| status     | added                                                                                  |
+| attributes | f+++++++++++++++++                                                                     |
+| timestamp  | 2023-11-29T13:29:35.651574Z                                                            | 
+
+|:-----------|:---------------------------------------------------------------------------------------|
+| name       | /home/ruben/Documents/AAAStudium/Semester-7/systemadministration/aide-test/aide.db.new |
+| status     | removed                                                                                |
+| attributes | f-----------------                                                                     |
+| timestamp  | 2023-11-29T13:29:35.651576Z                                                            | 
+
+|:-----------|:---------------------------------------------------------------------------|
+| name       | /home/ruben/Documents/AAAStudium/Semester-7/systemadministration/aide-test |
+| status     | changed                                                                    |
+| attributes | d =.... mc.. .. .                                                          |
+| timestamp  | 2023-11-29T13:29:35.651578Z                                                | 
+
+|:-----------|:-------------------------------------------------------------------------------------|
+| name       | /home/ruben/Documents/AAAStudium/Semester-7/systemadministration/aide-test/aide.conf |
+| status     | changed                                                                              |
+| attributes | f >.... mci.H.. .                                                                    |
+| timestamp  | 2023-11-29T13:29:35.651579Z                                                          | 
+
