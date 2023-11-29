@@ -3,11 +3,11 @@
 ## First set up writing emails
 
 ```bash
-sudo apt-get install ssmtp
+sudo apt-get install ssmtp 
+
 sudo mkdir /etc/ssmtp
 sudo vim /etc/ssmtp/ssmtp.conf
 ```
-
 
 add this and comment the rest of the file:
 
@@ -19,8 +19,6 @@ AuthUser=your.mail@gmail.com
 AuthPass=passcode
 UseTLS=YES
 ```
-
-
 
 get the passcode for your gmail-Account from here:
 https://security.google.com/settings/security/apppasswords
@@ -61,12 +59,11 @@ chmod ~/mail-notifications/send-mail.sh
 
 Now set up a cronjob to get the notification every day:
 
-
 ```bash
 crontab -e
 ```
+
 ```bash
 Add this line
 0 6 * * * ~/mail-notifications/send-mail
 ```
-

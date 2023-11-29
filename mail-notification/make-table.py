@@ -12,11 +12,9 @@ print("These files were changed on your server:\n")
 
 for obj in data:
     if 'event_type' not in obj:
-        print("not")
         continue
 
     if obj['event_type'] != "file_integrity":
-        print("ohoho")
         continue
 
     # Convert JSON data to a table
