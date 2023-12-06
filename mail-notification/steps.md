@@ -4,6 +4,7 @@
 
 ```bash
 sudo apt-get install ssmtp 
+pip install tabulate
 
 sudo mkdir /etc/ssmtp
 sudo vim /etc/ssmtp/ssmtp.conf
@@ -38,7 +39,7 @@ Now to get the results automatically send to you, you nedd to do this:
 Create directory on your Home-Folder on the Raspberry:
 
 ```bash
-mkdir mail-notifications
+mkdir /ids/mail
 ```
 
 Now you need to create a file name "mail-header". In there specify your target mail-address.
@@ -54,7 +55,7 @@ Subject: These files were changed on your server
 Copy the files "make-table.py" and "send-mail.sh into it. And give permissions to be executed:
 
 ```bash
-chmod ~/mail-notifications/send-mail.sh
+chmod /ids/mail/send-mail.sh
 ```
 
 Now set up a cronjob to get the notification every day:

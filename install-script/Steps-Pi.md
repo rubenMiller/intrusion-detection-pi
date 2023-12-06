@@ -48,6 +48,8 @@ sudo apt install samba samba-common-bin aide iptables wget gnupg apt-transport-h
 
 4. Also `<gitRepo>/aide/aide.conf`, `aide-run.sh` and `aide_to_eve.py` (from this repo) should be included in `/ids/aide`
 
+5. `aide.conf` also needs a copy in `/ids/pi-public`: `cp /ids/aide/aide.conf /ids/pi-public/aide.conf && sudo chown nobody:nogroup /ids/pi-public/aide.conf &&sudo chmod 444 /ids/pi-public/aide.conf`
+
 ## TODO: Manually adding Host on PI
 
 If a new Host wants to be part of AIDE, it will be configured in the `install-script.sh` but it needs to be added here too. We will change this later, but at the Moment, it needs do be manually done
@@ -61,7 +63,8 @@ host_config=$(grep -rl "IP=$HOSTIP" /ids/host-configs/)
 hostname=$(awk -F= -v key="Hostname" '$1==key {print $2}' $host_config)
 
 # push the aide config from the raspberry
-scp /etc/aide/aide.conf $pi_user@$HOSTIP:~/aide/aide.conf
+# TODO: Wrong File
+scp /ids/aide/aide.conf $pi_user@$HOSTIP:~/aide/aide.conf
 # scp /ids/aide/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh #deprecated
 
 ssh $pi_user@$HOSTIP "dpkg -V aide; if [ $? -ne 0 ];

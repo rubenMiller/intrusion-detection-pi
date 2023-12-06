@@ -2,7 +2,8 @@
 
 set -e
 
-cp -f ~/mail-notifications//mail-header ~/mail-notifications/mail-text
-cat /ids/aide/output-eve.json | python3 ~/mail-notifications/make-table.py >> ~/mail-notifications/mail-text
-ssmtp -t < ~/mail-notifications/mail-text
-rm ~/mail-notifications/mail-text
+cp -f /ids/mail/mail-header /ids/mail/mail-text
+cat /ids/aide/output-eve.json | python3 /ids/mail/make-table-aide.py >> /ids/mail/mail-text
+cat /var/log/suricata/eve.json | python3 /ids/mail/make-table-suricata.py >> /ids/mail/mail-text
+ssmtp -t < /ids/mail/mail-text
+rm /ids/mail/mail-text

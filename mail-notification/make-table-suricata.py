@@ -1,8 +1,10 @@
 import json
 import sys
 from tabulate import tabulate
+from datetime import datetime, timezone, timedelta
 
 
+current_time_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
 data = []
 
 for line in sys.stdin.readlines():
@@ -15,6 +17,12 @@ for obj in data:
         continue
 
     if obj['event_type'] != "alert":
+        continue
+        
+        # Does not print files older than 24 h
+    timestamp_datetime = datetime.strptime(obj['timestamp'], "%Y-%m-%dT%H:%M:%S.%f%z").replace(tzinfo=timezone.utc)
+    time_since_event = current_time_utc - timestamp_datetime
+    if time_since_event > timedelta(hours=24):
         continue
 
     # Convert JSON data to a table

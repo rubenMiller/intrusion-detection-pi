@@ -7,6 +7,8 @@ set -e
 read -p "Please enter the IP-Address of the IDS-PI: " pi_ip
 
 echo "Installing requirements... "
+# we need to get the nameserver, before installing systemd-resolved
+old_dns="$(cat /etc/resolv.conf |grep nameserver | cut -f 2 -d ' ')"
 # Requirements: smbclient, 
 sudo apt update
 sudo apt install smbclient iptables iptables-persistent sudo acl systemd-resolved aide #-y can be added to automate
@@ -83,9 +85,8 @@ echo
 
 echo "Setting up PiHole..."
 # Set Pi as DNS
-old_dns="$(resolvectl --no-pager |grep Server |cut -d " " -f 6)"
 sudo pi_ip=$pi_ip /bin/bash -c "echo 'DNS=$pi_ip' >> /etc/systemd/resolved.conf"
-#sudo old_dns=$old_dna /bin/bash -c "echo 'FallbackDNS=$old_dns' >> /etc/systemd/resolved.conf"
+sudo old_dns=$old_dna /bin/bash -c "echo 'FallbackDNS=$old_dns' >> /etc/systemd/resolved.conf"
 sudo service systemd-resolved restart
 
 echo "Done!"
