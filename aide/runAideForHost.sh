@@ -22,7 +22,7 @@ sed -i "s/<<pi_user>>/$AIDE_USER/g" $AIDE_FOLDER/aide.conf
 
 if [ ! -f "$AIDE_FOLDER/recent-aide-db" ]; then
     echo "The file $AIDE_FOLDER/recent-aide-db does not exists, therefore aide needs to be initialised, starting respective script."
-    ./runInitialAideForHost.sh ${SERVERIP} ${AIDE_FOLDER} ${AIDE_USER}
+    /ids/aide/runInitialAideForHost.sh ${SERVERIP} ${AIDE_FOLDER} ${AIDE_USER}
     exit
 fi
 

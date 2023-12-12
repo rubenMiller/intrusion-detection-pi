@@ -4,8 +4,25 @@
 # Does not fail on error
 
 # Path to aide dbs, see Steps-Pi.md
-db_dir=/ids/aide/configs/
+#db_dir=/ids/aide/configs/
+#samba_dir="/ids/host-configs"
+db_dir="./test/c"
+samba_dir="./test/b"
 
+# Iterate through files in /ids/host-configs
+for config_file in "$samba_dir"/*; do
+    # Extract hostname from the config file name
+    hostname=$(basename "$config_file" | sed 's/config-//')
+
+    # Check if the corresponding folder exists in /ids/aide/aide-dbs
+    aide_folder="$db_dir/$hostname"
+    if [ ! -d "$aide_folder" ]; then
+        # If the folder doesn't exist, create it 
+		echo "Adding new configurations for Host: $hostname."
+        mkdir -p "$aide_folder"
+    	cp "$config_file" "$aide_folder/"
+    fi
+done
 
 # IDS-Pi User on Host. Specified in install-script
 pi_user="ids-pi"

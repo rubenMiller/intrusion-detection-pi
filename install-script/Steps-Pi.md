@@ -56,19 +56,19 @@ The aide-run.sh script looks through the folder /ids/aide/configs and for each c
 You need to have three files in the same folder aide-run.sh, runAideForHost.sh and runInitialAideForHost.sh and give them permission to be executed.
 
 ```bash
-chmod +x aide-run.sh
-chmod +x runAideForHost.sh
-chmod +x runInitialAideForHost.sh
+chmod +x /ids/aide/aide-run.sh
+chmod +x /ids/aide/runAideForHost.sh
+chmod +x /ids/aide/runInitialAideForHost.sh
 ```
 
 When setting up the server, there should be folders created to look like this:
 
 ```bash
-/ids/aide/configs/server-hostname/config-server-hostname
-/ids/aide/configs/another-server/config-another-server
+/ids/host-configs/config-server-hostname
+/ids/host-configs/config-another-server
 ```
 
-If there is no aide config file given and namend "aide.conf", the default stored in /ids/aide/aide.conf will be used. Store aide config files like this:
+These files are on the samba-share, which is open to be written into. The files could be lost and therefore should not be stored there. The aide run script copies the files from there into another folder and accesses it from there. If there is no aide config file given and namend "aide.conf", the default stored in /ids/aide/aide.conf will be used. Store aide config files like this:
 
 ```bash
 /ids/aide/configs/server-hostname/config-server-hostname
@@ -83,7 +83,7 @@ Now only a cronjob that periodically runs the script needs to be made. This one 
 crontab -e 
 
 # Add this line
-0 2 * * * /path/to/aide-run.sh
+0 2 * * * //ids/aide/aide-run.sh
 ```
 
 
