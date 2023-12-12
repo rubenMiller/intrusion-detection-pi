@@ -4,8 +4,8 @@
 # Does not fail on error
 
 # Path to aide dbs, see Steps-Pi.md
-#db_dir=/ids/aide/configs/
-db_dir=./test/
+db_dir=/ids/aide/configs/
+
 
 # IDS-Pi User on Host. Specified in install-script
 pi_user="ids-pi"

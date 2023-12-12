@@ -36,11 +36,6 @@ echo
 
 echo "Generating config for pi..."
 
-# Generate aide-config file
-aide_config=/home/$pi_user/aide/aide.conf
-echo -e "# The aide-config file\n# Please fill according to your system." > $aide_config
-vim $aide_config
-
 # Generate config-file
 config_file="config-$(hostname -f)"
 echo "Hostname=$(hostname -f)" > $config_file
@@ -48,11 +43,8 @@ echo "IP=$(ip route get 8.8.8.8 | grep -oP 'src \K[^ ]+')" >> $config_file # IP 
     # From: https://stackoverflow.com/questions/21336126/linux-bash-script-to-extract-ip-address
 echo "Fingerprint=$(ssh-keyscan -t ed25519 127.0.0.1 | cut -f 2,3 -d ' ')" >> $config_file
 
-
-
 # Copy config to Pi using smbclient (see requirements)
 smbclient //"$pi_ip"/"configs" -U "$pi_user"%"nG4AghLw" -c "put $config_file"
-smbclient //"$pi_ip"/"configs" -U "$pi_user"%"nG4AghLw" -c "put $aide_config"
 
 # Remove temp file
 rm $config_file
