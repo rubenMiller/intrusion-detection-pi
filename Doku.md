@@ -44,9 +44,33 @@ Ein raspberry ist klein und weit verbreitet, deswegen bietet er sich sehr gut an
 
 ### File Based Intrusion Detection, aide
 
-Aide kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Dies geschieht, indem Hashwerte für ausgeählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden.
+Aide kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Außerdem erkennt es neue oder gelöschte Dateien und Ordner. Dies geschieht, indem Hashwerte für ausgewählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden. Wie nutzen wir dies?
 
-Da aide diese Änderungen nicht sortiert, ist eine gute Auswahl dieser sehr wichtig. Werden etwa log-files beachtet, wird die Ausgabe sehr schnell zugemüllt. Dateien die sich seltener ändern, wie etwa Programme, sind dafür ideal. Außer nach einem Update sollten dort keine Änderungen auftreten.
+Vorab der kompakte Ablauf, später mehr Details und Herausforderungen und ihre Lösungen.
+
+Aide läuft bei uns als cronjob jeden Morgen um 2:00.
+Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Bei jeder weiteren wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
+Die erkannten Veränderungen werden dann in geloggt und per Mail versand.
+
+#### Auführung von Aide
+
+Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt gemacht werden, in dem der Host Ressourcen zur verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 auf dem Host die Erstellung der Datenbank. 
+
+#### Persistenz der Datenbanken und Konfigurationsdateien
+
+Die Datenbanken werden auf dem Host erstellt, von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollte hier Daten nicht gespeichert werden. Denn leiern, Host, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry gespeichert. Die letzte Datenbank wird dann immer wieder auf den Host hochgeladen um vergleichen werden zu können.
+
+#### erstellen der Konfigurationsdateien
+
+Mit Aide kann und sollte individuell festgelegt werden, welche Ordner betrachtet werden. Werden dies irgendwann viele Ordner, kann dieser Prozess sehr aufwendig und Zeitintensiv werden. Genau deswegen sollte hier eine gute Auswahl getroffen werden, besonders weil aide keine Priorisierung der Änderungen durchführt.
+Der Nutzer sieht also immer alle Änderungen. Werden also etwa log-files betrachtet, die sich oft Ändern und auch viele neue hinzukommen, flutet dies die Ausgabe und wichtige Änderungen könnten übersehen werden.
+Sehr gut eignen sich deswegen ausführbare Dateien.
+
+#### Versand per Mail
+
+Um auch über die Änderungen informiert zu werden, lesen wir den output von Aide mit einem python-script aus und passen diese an die Ausgaben von suricata an, um hier gute Übersicth für den Nutzer zu schaffen.
+Die Events der letzten 24h werden dann per Mail an die hinterlegte Addresse versendet.
+
 
 ### Network Intrusion Detection
 
