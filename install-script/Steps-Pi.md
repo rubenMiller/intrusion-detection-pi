@@ -50,13 +50,42 @@ sudo apt install samba samba-common-bin aide iptables wget gnupg apt-transport-h
 
 5. `aide.conf` also needs a copy in `/ids/pi-public`: `cp /ids/aide/aide.conf /ids/pi-public/aide.conf && sudo chown nobody:nogroup /ids/pi-public/aide.conf &&sudo chmod 444 /ids/pi-public/aide.conf`
 
-## TODO: Manually adding Host on PI
+## Setting up aide
 
-If a new Host wants to be part of AIDE, it will be configured in the `install-script.sh` but it needs to be added here too. We will change this later, but at the Moment, it needs do be manually done
+The aide-run.sh script looks through the folder /ids/aide/configs and for each contained folder starts the runAideForHost.sh script.
+You need to have three files in the same folder aide-run.sh, runAideForHost.sh and runInitialAideForHost.sh and give them permission to be executed.
 
 ```bash
-pi_user="ids-pi"
-HOSTIP="192..."
+chmod +x aide-run.sh
+chmod +x runAideForHost.sh
+chmod +x runInitialAideForHost.sh
+```
+
+When setting up the server, there should be folders created to look like this:
+
+```bash
+/ids/aide/configs/server-hostname/config-server-hostname
+/ids/aide/configs/another-server/config-another-server
+```
+
+If there is no aide config file given and namend "aide.conf", the default stored in /ids/aide/aide.conf will be used. Store aide config files like this:
+
+```bash
+/ids/aide/configs/server-hostname/config-server-hostname
+/ids/aide/configs/server-hostname/aide.conf
+/ids/aide/configs/another-server/config-another-server
+/ids/aide/configs/another-server/aide.conf
+```
+
+Now only a cronjob that periodically runs the script needs to be made. This one runs every day at 2 am.
+
+```bash
+crontab -e 
+
+# Add this line
+0 2 * * * /path/to/aide-run.sh
+```
+
 
 # Find host-config
 host_config=$(grep -rl "IP=$HOSTIP" /ids/host-configs/)
