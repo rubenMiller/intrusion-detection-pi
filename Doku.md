@@ -1,5 +1,9 @@
 # Dokumentation
 
+![_41dda56a-6733-47ff-8ac0-22c91bb68a08.jpeg](assets/3e733fbf620d13f269664e0257e0033e1fc33bbc.jpeg)
+
+Bild von Bing generiert: [Suchen</title><meta content="Finden Sie Bilder, Fotos und animierte GIFs mit Bing Bilder" name="description" /><title>Bilder](https://www.bing.com/images/create/intrusion-detection-raspberrypi/1-6579be6948a14dbdab119cddd71c0c67?id=DfTnKrjy7FJxcz%2BHxST3Kw%3D%3D&view=detailv2&idpp=genimg&idpclose=1&FORM=SYDBIC) Prompt: "Geeriere mir bitte ein Bild für ein Projekt. Das Projekt heißt "Intrusion Detection RaspberryPi""
+
 ## Einleitung
 
 ### Motivation
@@ -8,9 +12,9 @@ Unser Ziel war es, ein Gerät zu entwerfen, welches einen oder mehrere Server au
 
 ## Anforderungen
 
-Im folgenden sind die Anforderungen beschrieben, die wir uns für unser Projekt gesetzt haben
+Im folgenden sind die Anforderungen beschrieben, die wir uns für unser Projekt gesetzt haben.
 
-### unabdingliche Anforderungen
+### Unabdingliche Anforderungen
 
 #### File Based Intrusion Detection
 
@@ -18,47 +22,51 @@ Ein erfolgreicher Angriff hinterlässt spuren im System. Diese können sehr gut 
 
 #### Network Intrusion Detection
 
-Bevor ein Angriff lokale Dateien verändern kann, muss der Angreifer (meistens) erst über das Netzwerk gehen. Wird der Angriff schon dort erkannt, kann dieser schon schneller verhindert werden, und so etwa der Raub von Daten oder anderem verwendet werden. Aus diesem Grund war es uns sehr wichtig, auch diesen Teil mit unserem Projekt abzudecken.
+Bevor ein Angriff lokale Dateien verändern kann, muss der Angreifer (meistens) erst über das Netzwerk gehen. Wird der Angriff schon dort erkannt, kann dieser schon schneller verhindert werden, und so etwa der Raub von Daten oder anderem verhindert werden. Aus diesem Grund war es uns sehr wichtig, auch diesen Teil mit unserem Projekt abzudecken.
 
 #### Benachrichtigungen
 
-Wurde ein Angriff entdeckt, sollte gehandelt werden. Was genau zu tun ist, ist oft äußerst komplex und individuell, dazu braucht es einen erfahrenenen Systemadministrator. Damit dieser aber von dem Problem erfährt, ist es wichtig, dass dieser über verdächtige Aktionen benachrichtigt wird.
+Wurde ein Angriff entdeckt, sollte gehandelt werden. Was genau zu tun ist, ist oft äußerst komplex und individuell, dazu braucht es einen erfahreneren Systemadministrator. Damit dieser aber von dem Problem erfährt, ist es wichtig, dass dieser über verdächtige Aktionen benachrichtigt wird.
 
-### optionale Anforderungen
+### Optionale Anforderungen
 
 #### Oberflächen
 
-#### PiHole
+##### Evebox
 
-Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit PiHole kann verhindert werden, dass der server überhaupt auf diese zugreift. Sei es durch manipulation oder sozial engineering.
+Evebox ist ein Suricata Alert- und Eventmanagement Tool für die Suricata IDS/NSM-Engine. Wir haben das Tool erweitert, um auch die Warnungen von AIDE anzeigen zu können.
 
-## verwendete Technologien
+#### Pi-Hole
 
-### ssh
+Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Sei es durch Manipulation oder sozial Engineering.
 
-ssh bietet eine einfache und sichere Verbindung. Deswegen nutzen wir diese, um Befehle auf den server von unserem Gerät auszuführen.
+## Verwendete Technologien
 
-### Raspberry
+### SSH
 
-Ein raspberry ist klein und weit verbreitet, deswegen bietet er sich sehr gut an, um die Basis für unser Projekt zu sein. Auch Technologien wie PiHole waren darauf einfach umzusetzen.
+SSH bietet eine einfache und sichere Verbindung. Deswegen nutzen wir diese, um Befehle auf dem Server von unserem Gerät auszuführen. Zudem wird SSH zum Übertragen von Dateien eingesetzt.
 
-### File Based Intrusion Detection, aide
+### Raspberry Pi
 
-Aide kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Außerdem erkennt es neue oder gelöschte Dateien und Ordner. Dies geschieht, indem Hashwerte für ausgewählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden. Wie nutzen wir dies?
+Ein Raspberry Pi ist ein ARM-basierter Einplatinencomputer mit einem Ein-Chip-System von Broadcom. Er ist klein und weit verbreitet, deswegen bietet er sich sehr gut an, um die Basis für unser Projekt zu sein. Auch Technologien wie Pi-Hole waren darauf einfach umzusetzen.
+
+### File Based Intrusion Detection: AIDE
+
+AIDE kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Außerdem erkennt es neue oder gelöschte Dateien und Ordner. Dies geschieht, indem Hashwerte für ausgewählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden. Wie nutzen wir dies?
 
 Vorab der kompakte Ablauf, später mehr Details und Herausforderungen und ihre Lösungen.
 
-Aide läuft bei uns als cronjob jeden Morgen um 2:00.
+AIDE läuft bei uns als Cronjob jeden Morgen um 2:00.
 Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Bei jeder weiteren wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
-Die erkannten Veränderungen werden dann in geloggt und per Mail versand.
+Die erkannten Veränderungen werden dann in geloggt und per Mail Versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt.
 
-#### Auführung von Aide
+#### Ausführung von Aide
 
-Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt gemacht werden, in dem der Host Ressourcen zur verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 auf dem Host die Erstellung der Datenbank. 
+Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt getan werden, in dem der Host Ressourcen zur Verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 auf dem Host die Erstellung der Datenbank. 
 
 #### Persistenz der Datenbanken und Konfigurationsdateien
 
-Die Datenbanken werden auf dem Host erstellt, von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollte hier Daten nicht gespeichert werden. Denn leiern, Host, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry gespeichert. Die letzte Datenbank wird dann immer wieder auf den Host hochgeladen um vergleichen werden zu können.
+Die Datenbanken werden auf dem Host erstellt. Von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollten hier Daten nicht gespeichert werden. Denn leiern, Host, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry gespeichert. Die letzte Datenbank wird dann immer wieder auf den Host hochgeladen um vergleichen werden zu können.
 
 #### erstellen der Konfigurationsdateien
 
@@ -70,7 +78,6 @@ Sehr gut eignen sich deswegen ausführbare Dateien.
 
 Um auch über die Änderungen informiert zu werden, lesen wir den output von Aide mit einem python-script aus und passen diese an die Ausgaben von suricata an, um hier gute Übersicth für den Nutzer zu schaffen.
 Die Events der letzten 24h werden dann per Mail an die hinterlegte Addresse versendet.
-
 
 ### Network Intrusion Detection
 
