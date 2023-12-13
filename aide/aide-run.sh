@@ -4,10 +4,10 @@
 # Does not fail on error
 
 # Path to aide dbs, see Steps-Pi.md
-#db_dir=/ids/aide/configs/
-#samba_dir="/ids/host-configs"
-db_dir="./test/c"
-samba_dir="./test/b"
+db_dir=/ids/aide/configs/
+samba_dir="/ids/host-configs"
+#db_dir="./test/c"
+#samba_dir="./test/b"
 
 # Iterate through files in /ids/host-configs
 for config_file in "$samba_dir"/*; do
@@ -20,7 +20,7 @@ for config_file in "$samba_dir"/*; do
         # If the folder doesn't exist, create it 
 		echo "Adding new configurations for Host: $hostname."
         mkdir -p "$aide_folder"
-    	cp "$config_file" "$aide_folder/"
+    	mv "$config_file" "$aide_folder/"
     fi
 done
 
@@ -29,13 +29,13 @@ pi_user="ids-pi"
 
 # Loop through the directories in the given path
 for server_folder in "$db_dir"/*/; do
-	server_name=$(basename "$server_folder")
+	hostname=$(basename "$server_folder")
 
-	host_config_file="$db_dir/$server_name/config-$server_name"
-	aide_folder="$db_dir/$server_name/"
+	host_config_file="$db_dir/$hostname/config-$hostname"
+	aide_folder="$db_dir/$hostname/"
 
 	if [ -f "$host_config_file" ]; then
-		echo "Reading config for server: $db_dir$server_name"
+		echo "Reading config for server: $db_dir$hostname"
 
 		while IFS= read -r line; do
 			if [[ $line == IP=* ]]; then
@@ -45,8 +45,7 @@ for server_folder in "$db_dir"/*/; do
 				echo -e "\nStarting script for Host: ${parts[1]}."
 
 				# Run the runAideForHost.sh script
-				chmod +x ./runAideForHost.sh 
-				./runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user}
+				./runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user} #TODO: calling scripts with ./ requires to set the Working Directory: `cd "$(dirname "$0")"`; Needs testing
 
 				echo "Script for Host: ${parts[1]} finished."
 				break

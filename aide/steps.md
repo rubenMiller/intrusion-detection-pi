@@ -54,5 +54,4 @@ crontab -e
 
 # Add this line
 0 2 * * * /path/to/aide-run.sh
-
 ```

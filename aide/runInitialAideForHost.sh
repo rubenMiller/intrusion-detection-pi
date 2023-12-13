@@ -18,16 +18,14 @@ AIDE_USER=$3
 scp $AIDE_FOLDER/aide.conf $AIDE_USER@$SERVERIP:~/aide/aide.conf
 
 
-ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
+ssh $AIDE_USER@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
     then echo 'Aide needs to be reinstalled!';
     exit 1;
     fi;
-    sudo aide --config=/home/$pi_user/aide/aide.conf --init;
-    sudo chown -R $pi_user /home/$pi_user/aide"
+    sudo aide --config=/home/$AIDE_USER/aide/aide.conf --init;
+    sudo chown -R $AIDE_USER /home/$AIDE_USER/aide"
 
 # Pull files back to PI
 export DATE=$(date +%F_%T)
-scp $pi_user@$SERVERIP:/home/$pi_user/aide/aide.db.new $AIDE_FOLDER/aide-$DATE.db
+scp $AIDE_USER@$SERVERIP:/home/$AIDE_USER/aide/aide.db.new $AIDE_FOLDER/aide-$DATE.db
 ln -s $AIDE_FOLDER/aide-$DATE.db $AIDE_FOLDER/recent-aide-db
-python /ids/aide/aide_to_eve.py $AIDE_FOLDER/output-$DATE.json $AIDE_FOLDER/output-eve-$DATE.json $SERVERIP
-cat $AIDE_FOLDER/output-eve-$DATE.json >> /ids/aide/output-eve.json
