@@ -86,14 +86,20 @@ crontab -e
 0 2 * * * //ids/aide/aide-run.sh
 ```
 
+## Deprecated: Manually add host
 
+```bash
 # Find host-config
+
 host_config=$(grep -rl "IP=$HOSTIP" /ids/host-configs/)
 hostname=$(awk -F= -v key="Hostname" '$1==key {print $2}' $host_config)
 
 # push the aide config from the raspberry
+
 # TODO: Wrong File
+
 scp /ids/aide/aide.conf $pi_user@$HOSTIP:~/aide/aide.conf
+
 # scp /ids/aide/aide-init.sh $pi_user@$HOSTIP:~/aide/init.sh #deprecated
 
 ssh $pi_user@$HOSTIP "dpkg -V aide; if [ $? -ne 0 ];
