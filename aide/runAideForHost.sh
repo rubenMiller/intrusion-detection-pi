@@ -14,6 +14,15 @@ SERVERIP=$1
 AIDE_FOLDER=$2
 AIDE_USER=$3
 
+echo "Checking if $SERVERIP is reachable"
+if ping -c 1 $SERVERIP &> /dev/null
+then
+  echo "Success"
+else
+  echo "Error: Host unreachable"
+  exit 1
+fi
+
 # Search and replace <<pi_user>> by actual user
 if [ ! -f "$AIDE_FOLDER/aide.conf" ]; then
     echo "The file $AIDE_FOLDER/aide.conf does not exist, copying default from /ids/aide/aide.conf."
@@ -24,6 +33,7 @@ fi
 
 if [ ! -f "$AIDE_FOLDER/recent-aide-db" ]; then
     echo "The file $AIDE_FOLDER/recent-aide-db does not exists, therefore aide needs to be initialised, starting respective script."
+	echo "/ids/aide/runInitialAideForHost.sh ${SERVERIP} ${AIDE_FOLDER} ${AIDE_USER}"
     /ids/aide/runInitialAideForHost.sh ${SERVERIP} ${AIDE_FOLDER} ${AIDE_USER}
     exit
 fi
@@ -39,7 +49,7 @@ ssh $AIDE_USER@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
     then echo 'Aide needs to be reinstalled!';
     exit 1;
     fi;
-    sudo aide --config=/home/$AIDE_USER/aide/aide.conf --init;
+    sudo aide --config=/home/$AIDE_USER/aide/aide.conf --init > /dev/null
     sudo aide --config=/home/$AIDE_USER/aide/aide.conf --compare > /home/$AIDE_USER/aide/output.json
     sudo chown -R $AIDE_USER /home/$AIDE_USER/aide"
 
