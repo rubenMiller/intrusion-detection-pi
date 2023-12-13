@@ -36,6 +36,7 @@ Wurde ein Angriff entdeckt, sollte gehandelt werden. Was genau zu tun ist, ist o
 
 Evebox ist ein Suricata Alert- und Eventmanagement Tool für die Suricata IDS/NSM-Engine. Wir haben das Tool erweitert, um auch die Warnungen von AIDE anzeigen zu können.
 
+Viele Webseiten, über die schädliche Handlungen geschehen sind bekannt. Mit PiHole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Das fällt unter Intrusion Prevention.
 #### Pi-Hole
 
 Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Sei es durch Manipulation oder sozial Engineering.
@@ -62,22 +63,25 @@ Die erkannten Veränderungen werden dann in geloggt und per Mail Versand, bezieh
 
 #### Ausführung von Aide
 
-Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt getan werden, in dem der Host Ressourcen zur Verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 auf dem Host die Erstellung der Datenbank. 
+Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt gemacht werden, in dem der Host Ressourcen zur verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00  die Erstellung der Datenbanken auf den Hosts.
 
 #### Persistenz der Datenbanken und Konfigurationsdateien
 
-Die Datenbanken werden auf dem Host erstellt. Von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollten hier Daten nicht gespeichert werden. Denn leiern, Host, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry gespeichert. Die letzte Datenbank wird dann immer wieder auf den Host hochgeladen um vergleichen werden zu können.
+Die Datenbanken werden auf dem Host erstellt, von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollte hier Daten nicht gespeichert werden. Denn hätte ein Angreifer sich Zugriff auf den Host verschafft, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry gespeichert. Die letzte Datenbank und Konfigurationsdatei wird dann immer wieder auf den Host hochgeladen um damit zu arbeiten.
+Um zu verhindern, dass der Angreifer die packages von aide verändert, verifizieren wir diese vor jeder Ausführung auf den jeweligen Hosts und geben eine entsprechende Fehlermeldung zurück.
+
 
 #### erstellen der Konfigurationsdateien
 
 Mit Aide kann und sollte individuell festgelegt werden, welche Ordner betrachtet werden. Werden dies irgendwann viele Ordner, kann dieser Prozess sehr aufwendig und Zeitintensiv werden. Genau deswegen sollte hier eine gute Auswahl getroffen werden, besonders weil aide keine Priorisierung der Änderungen durchführt.
 Der Nutzer sieht also immer alle Änderungen. Werden also etwa log-files betrachtet, die sich oft Ändern und auch viele neue hinzukommen, flutet dies die Ausgabe und wichtige Änderungen könnten übersehen werden.
-Sehr gut eignen sich deswegen ausführbare Dateien.
+Sehr gut eignen sich deswegen ausführbare Dateien. Diese Ändern sich selten, etwa nur bei Updates. Außerdem sind diese ein sehr interessantes Ziel für Angreifer.
 
 #### Versand per Mail
 
 Um auch über die Änderungen informiert zu werden, lesen wir den output von Aide mit einem python-script aus und passen diese an die Ausgaben von suricata an, um hier gute Übersicth für den Nutzer zu schaffen.
 Die Events der letzten 24h werden dann per Mail an die hinterlegte Addresse versendet.
+
 
 ### Network Intrusion Detection
 
