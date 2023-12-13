@@ -4,10 +4,8 @@
 # Does not fail on error
 
 # Path to aide dbs, see Steps-Pi.md
-db_dir=/ids/aide/configs/
-samba_dir="/ids/host-configs"
-#db_dir="./test/c"
-#samba_dir="./test/b"
+db_dir=/ids/aide/configs
+samba_dir=/ids/host-configs
 
 # Iterate through files in /ids/host-configs
 for config_file in "$samba_dir"/*; do
@@ -45,7 +43,7 @@ for server_folder in "$db_dir"/*/; do
 				echo -e "\nStarting script for Host: ${parts[1]}."
 
 				# Run the runAideForHost.sh script
-				./runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user} #TODO: calling scripts with ./ requires to set the Working Directory: `cd "$(dirname "$0")"`; Needs testing
+				/ids/aide/runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user}
 
 				echo "Script for Host: ${parts[1]} finished."
 				break
