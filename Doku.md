@@ -2,7 +2,7 @@
 
 ![_41dda56a-6733-47ff-8ac0-22c91bb68a08.jpeg](assets/3e733fbf620d13f269664e0257e0033e1fc33bbc.jpeg)
 
-Bild von Bing generiert: [Suchen</title><meta content="Finden Sie Bilder, Fotos und animierte GIFs mit Bing Bilder" name="description" /><title>Bilder](https://www.bing.com/images/create/intrusion-detection-raspberrypi/1-6579be6948a14dbdab119cddd71c0c67?id=DfTnKrjy7FJxcz%2BHxST3Kw%3D%3D&view=detailv2&idpp=genimg&idpclose=1&FORM=SYDBIC) Prompt: "Geeriere mir bitte ein Bild für ein Projekt. Das Projekt heißt "Intrusion Detection RaspberryPi""
+Bild von Bing generiert: [Suchen<title><meta content="Finden Sie Bilder, Fotos und animierte GIFs mit Bing Bilder" name="description" /></title>Bilder](https://www.bing.com/images/create/intrusion-detection-raspberrypi/1-6579be6948a14dbdab119cddd71c0c67?id=DfTnKrjy7FJxcz%2BHxST3Kw%3D%3D&view=detailv2&idpp=genimg&idpclose=1&FORM=SYDBIC) Prompt: "Generiere mir bitte ein Bild für ein Projekt. Das Projekt heißt "Intrusion Detection RaspberryPi"
 
 ## Einleitung
 
@@ -69,8 +69,8 @@ AIDE kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen 
 Vorab der kompakte Ablauf, später mehr Details und Herausforderungen und ihre Lösungen.
 
 AIDE läuft bei uns als Cronjob jeden Morgen um 2:00.
-Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Bei jeder weiteren wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
-Die erkannten Veränderungen werden dann in geloggt und per Mail Versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt.
+Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Diese enthält Haswerte für Dateien und Ordner. Bei jeder weiteren Ausführung wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
+Die erkannten Veränderungen werden dann geloggt und per Mail versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt.
 
 #### Ausführung von Aide
 
@@ -83,7 +83,7 @@ Um zu verhindern, dass der Angreifer die packages von AIDE verändert, verifizie
 
 #### Erstellen der Konfigurationsdateien
 
-Mit Aide kann und sollte individuell festgelegt werden, welche Ordner betrachtet werden. Werden es irgendwann sehr viele Ordner, kann dieser Prozess sehr aufwendig und Zeitintensiv werden. Genau deswegen sollte hier eine gute Auswahl getroffen werden, besonders weil AIDE keine Priorisierung der Änderungen durchführt.
+Mit Aide kann und sollte individuell festgelegt werden, welche Ordner betrachtet werden. Werden dies irgendwann viele Ordner, kann dieser Prozess sehr aufwendig und Zeitintensiv werden. Genau deswegen sollte hier eine gute Auswahl getroffen werden, besonders weil AIDE keine Priorisierung der Änderungen durchführt.
 Der Nutzer sieht also immer alle Änderungen. Werden also etwa log-files betrachtet, die sich oft Ändern und auch viele neue hinzukommen, flutet dies die Ausgabe und wichtige Änderungen könnten übersehen werden.
 Sehr gut eignen sich deswegen ausführbare Dateien. Diese Ändern sich selten, etwa nur bei Updates. Außerdem sind diese ein sehr interessantes Ziel für Angreifer.
 
@@ -163,7 +163,7 @@ Die Events der letzten 24h werden dann per Mail an die hinterlegte Adresse verse
 
 ### E-Mail
 
-TODO: Kannst du noch was zu den Mails sagen? Ich weiß wir haben oben bei AIDE und Suricata schon darüber gesprochen, aber hier passt der Screenshot einfach sehr gut hin
+Damit ein Systemadministrator Standortunabhängig benachrichtigt werden kann, sind Mails ein sehr guter Weg. Hier gibt es auch schon sehr viele gegebene Möglichkeiten, diese über das Terminal zu versenden. Hier nutzen wir SSMTP. Um mails zu versenden muss eine Textdatei erstellt werden, die eine bestehende Mail-Adresse und ein zugehöriges Secret enthält. Dann können Mails sehr einfach versendet werden.
 
 ![IDS AIDE and Suricata Mail.png](assets/1fa1da87e9f0b2bf5e5acf303d692934446334cf.png)
 
@@ -181,7 +181,7 @@ Besser als einen Angriff zu entdecken, ist ihn zu verhindern. Die allermeisten A
 
 - **Cron:** Der Cron-Deamon dient der zeitbasierten Ausführung von Prozessen. Dieser führt täglich die Überprüfung des Servers durch AIDE durch.
 
-- **Samba:** Dient der zur Verfügung Stellung von Netzwerk-Ressourcen.
+- **Samba:** Dient der zur Verfügung Stellung von Netzwerk-Ressourcen. Beim Teilen von Daten hierüber musste beachtet werden, dass die Samba-Ordner beschrieben werden können und potenziell auch überschrieben werden können. Die Daten, die der Raspberry davon braucht werden also in einen anderen Ordner verschoben.
 
 - **systemd-resolved:** Dient dem manuellen Anpassen der `/etc/resolve.conf`, welche den PI als DNS-Server deklariert.
 
@@ -212,6 +212,8 @@ Zudem haben uns vorgenommen, den IDS-Pi auf dem Server einfach und ohne große �
 Wir möchten die Einrichtung des IDS-Pi mittels eines Debian-Packages vereinfachen. Dieses könnte man mittels des APT Paketmanagers installieren und hätte einen voll funktionsfähigen IDS-Pi.
 
 Auch in den Bug bei den Netfiltern würden wir uns gerne tiefer einarbeiten und eventuell eine praktikable Lösung finden.
+
+Des weitern wäre hier auch sehr nützlich, wenn anhand der erkannten Daten auch automatisch gehandelt werden kann. Etwa bestimmte IP-Addressen zu blockieren, oder den Server herunterzufahren. 
 
 Zuletzt haben wir uns angeschaut, wie man den Raspberry mittels eines Read-Only-Dateisystems und IPTables regeln robuster machen könnte.
 
