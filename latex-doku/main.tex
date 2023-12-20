@@ -1,0 +1,249 @@
+\documentclass{article}
+
+\usepackage[german]{babel}
+\usepackage[utf8]{inputenc}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{pdfpages}
+
+\title{Systemadministration: IDS-Pi}
+\author{Benedikt Geiger, Ruben Miller}
+\date{Dezember 2023}
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{assets/IDS-Pi.jpeg}
+    \caption[\href{https://www.bing.com/images/create/intrusion-detection-raspberrypi/1-6579be6948a14dbdab119cddd71c0c67?id=DfTnKrjy7FJxcz\%2BHxST3Kw\%3D\%3D&view=detailv2&idpp=genimg&idpclose=1&FORM=SYDBIC}{Titelbild von Bing}]{\label{fig:IDS-Pi}IDS-Pi}
+\end{figure}
+
+\tableofcontents
+
+\vfil \break
+
+\section{Einleitung}
+
+\subsection{Motivation}
+Unser Ziel war es, ein Gerät zu entwerfen, welches einen oder mehrere Server auf Angriffe untersucht und diese eventuell sogar schon vorbeugt. Das Gerät sollte dabei möglichst einfach einzubauen sein, ohne große Änderungen am bestehenden System vornehmen zu müssen.
+
+\section{Anforderungen}
+Im folgenden sind die Anforderungen beschrieben, die wir uns für unser Projekt gesetzt haben.
+
+\subsection{Unabdingliche Anforderungen}
+\subsubsection{File Based Intrusion Detection}
+Ein erfolgreicher Angriff hinterlässt spuren im System. Diese können sehr gut versteckt werden, etwa im Code von bestehenden Anwendungen.
+
+Das Tool "AIDE" kann solche Angriffe jedoch aufdecken. Da dies einen sehr großen Teil von ausgeführten Angriffen erkennen kann, war dies uns sehr wichtig.
+
+\subsubsection{Network Intrusion Detection}
+Bevor ein Angriff lokale Dateien verändern kann, muss der Angreifer (meistens) erst über das Netzwerk gehen. Wird der Angriff schon dort erkannt, kann dieser schon schneller verhindert werden, und so etwa der Raub von Daten oder anderem verhindert werden. Aus diesem Grund war es uns sehr wichtig, auch diesen Teil mit unserem Projekt abzudecken.
+
+\subsubsection{Benachrichtigungen}
+Wurde ein Angriff entdeckt, sollte gehandelt werden. Was genau zu tun ist, ist oft äußerst komplex und individuell, dazu braucht es einen erfahreneren Systemadministrator. Damit dieser aber von dem Problem erfährt, ist es wichtig, dass dieser über verdächtige Aktionen benachrichtigt wird.
+
+\vfil \break
+
+\subsection{Optionale Anforderungen}
+\subsubsection{Oberflächen}
+\paragraph{Evebox}
+Evebox ist ein Suricata Alert- und Eventmanagement Tool für die Suricata IDS/NSM-Engine. Wir haben das Tool erweitert, um auch die Warnungen von AIDE anzeigen zu können. \ref{fig:EveBox}
+
+Viele Webseiten, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Das fällt unter Intrusion Prevention.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/EveBox.png}
+    \caption[\href{https://evebox.org/}{EveBox von Evebox}]{\label{fig:EveBox}EveBox Oberfläche}
+\end{figure}
+
+\paragraph{Pi-Hole}
+Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Sei es durch Manipulation oder sozial Engineering. \ref{fig:PiHole}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/PiHole.png}
+    \caption[\href{https://commons.wikimedia.org/w/index.php?curid=71217077}{PiHole von Wikimedia}]{\label{fig:PiHole}PiHole Oberfläche}
+\end{figure}
+
+\section{Verwendete Technologien}
+\subsection{SSH}
+SSH bietet eine einfache und sichere Verbindung. Deswegen nutzen wir diese, um Befehle auf dem Server von unserem Gerät auszuführen. Zudem wird SSH zum Übertragen von Dateien eingesetzt.
+
+\subsection{Raspberry Pi}
+
+Ein Raspberry Pi ist ein ARM-basierter Einplatinencomputer mit einem Ein-Chip-System von Broadcom. Er ist klein und weit verbreitet, deswegen bietet er sich sehr gut an, um die Basis für unser Projekt zu sein.\ref{fig:Raspberry} Auch Technologien wie Pi-Hole waren darauf einfach umzusetzen. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/RaspberryPi.png}
+    \caption[\href{https://cdn-reichelt.de/bilder/web/xxl_ws/A300/RASPBERRY_PI_3B_PLUS_001.png}{Raspberry Pi Darstellung von Reichelt}]{\label{fig:Raspberry}Darstellung eines Raspberry Pi}
+\end{figure}
+
+\subsection{File Based Intrusion Detection: AIDE}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/AIDE.png}
+    \caption[AIDE Konsolenausgabe]{\label{fig:AIDE}AIDE Konsolenausgabe von uns}
+\end{figure}
+
+AIDE kann Veränderungen in Dateien und Ordnern entdecken, die sonst untergehen könnten. Außerdem erkennt es neue oder gelöschte Dateien und Ordner. Dies geschieht, indem Hashwerte für ausgewählte Ordner (und ihre Inhalte) erstellt werden und in einer Datenbank abgespeichert werden. Zu einem späteren Zeitpunkt kann dann mit dieser verglichen werden und Veränderungen können entdeckt werden. Wie nutzen wir dies?
+
+Vorab der kompakte Ablauf, später mehr Details und Herausforderungen und ihre Lösungen.
+
+AIDE läuft bei uns als Cronjob jeden Morgen um 2:00.
+Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Diese enthält Haswerte für Dateien und Ordner. Bei jeder weiteren Ausführung wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
+Die erkannten Veränderungen werden dann geloggt und per Mail versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt. \ref{fig:AIDE}
+
+\paragraph{Ausführung von AIDE}
+Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt gemacht werden, in dem der Host Ressourcen zur Verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 die Erstellung der Datenbanken auf den Hosts.
+
+\paragraph{Persistenz der Datenbanken und Konfigurationsdateien}
+Die Datenbanken werden auf dem Host erstellt, von diesem gehen wir jedoch als nicht sicher aus. Deswegen sollten hier Daten nicht gespeichert werden. Denn hätte ein Angreifer sich Zugriff auf den Host verschafft, könnte er dies ja wieder verschleiern, was wir zu verhindern versuchen. Deswegen werden alle Datenbanken und die Konfigurationsdateien auf dem Raspberry Pi gespeichert. Die letzte Datenbank und Konfigurationsdatei wird bei jedem Ausführen von AIDE wieder auf den Host hochgeladen um damit zu arbeiten.
+Um zu verhindern, dass der Angreifer die packages von AIDE verändert, verifizieren wir diese vor jeder Ausführung auf den jeweiligen Hosts und geben eine entsprechende Fehlermeldung zurück.
+
+\paragraph{Erstellen der Konfigurationsdateien}
+Mit Aide kann und sollte individuell festgelegt werden, welche Ordner betrachtet werden. Werden dies irgendwann viele Ordner, kann dieser Prozess sehr aufwendig und Zeitintensiv werden. Genau deswegen sollte hier eine gute Auswahl getroffen werden, besonders weil AIDE keine Priorisierung der Änderungen durchführt.
+Der Nutzer sieht also immer alle Änderungen. Werden also etwa log-files betrachtet, die sich oft Ändern und auch viele neue hinzukommen, flutet dies die Ausgabe und wichtige Änderungen könnten übersehen werden.
+Sehr gut eignen sich deswegen ausführbare Dateien. Diese Ändern sich selten, etwa nur bei Updates. Außerdem sind diese ein sehr interessantes Ziel für Angreifer.
+
+\paragraph{Versand per Mail}
+Um auch über die Änderungen informiert zu werden, lesen wir den Output von AIDE mit einem Python-Skript aus und passen diese an die Ausgaben von Suricata an, um hier gute Übersicht für den Nutzer zu schaffen.
+Die Events der letzten 24h werden dann per Mail an die hinterlegte Adresse versendet.
+
+\subsection{Network Intrusion Detection: Suricata}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/Suricata.png}
+    \caption[\href{https://suricata.io/wp-content/uploads/2021/01/Logo-FINAL_Vertical_Color_Whitetext.png}{Logo Suricata von Suricata}]{\label{fig:Suricata}Logo Suricata}
+\end{figure}
+Um Angriffe frühzeitig zu erkennen, insbesondere bevor sie lokale Dateien verändern können, setzen wir auf Network Intrusion Detection (NID) mit Suricata. Suricata ist eine leistungsfähige Open-Source-Software, die Netzwerkverkehr analysiert und nach potenziell schädlichem Verhalten sucht.\ref{fig:Suricata}
+
+\paragraph{Funktionsweise von Suricata}
+Suricata arbeitet auf der Ebene des Netzwerkverkehrs und überwacht den Datenfluss in Echtzeit. Dabei nutzt es verschiedene Methoden, um Anomalien oder verdächtige Aktivitäten zu identifizieren:
+
+\begin{enumerate}
+    \item \textbf{Signature-based Detection:} Suricata verwendet vordefinierte Signaturen, um bekannte Angriffsmuster zu erkennen. Diese Signaturen werden regelmäßig aktualisiert, um gegen die neuesten Bedrohungen gewappnet zu sein.
+    \item \textbf{Anomaly-based Detection:} Durch die Analyse von Netzwerkverhalten erkennt Suricata auch ungewöhnliche Muster, die auf potenzielle Angriffe hindeuten können. Dies ermöglicht die Entdeckung neuer oder sich entwickelnder Bedrohungen.
+    \item \textbf{Protocol Detection:} Suricata erkennt und überwacht verschiedene Netzwerkprotokolle, um Abweichungen von den erwarteten Standards zu identifizieren.
+\end{enumerate}
+
+\vfil \break
+
+\paragraph{Integration in die bestehende Infrastruktur}
+Bei der Integration in die bestehende Infrastruktur eines Netzwerks gab es zahlreiche Herausforderungen. Suricata sollte den gesamten Datenverkehr des Servers analysieren können, jedoch sollte der Server nicht von dem Raspberry als Knotenpunkt abhängig sein. Hierzu hat unsere Gruppe drei verschiedene Herangehensweisen erarbeitet:
+
+\begin{enumerate}
+    \item \textbf{Direkte Verbindung zum Server aus dem Netzwerk}\ref{fig:Idee1}
+    \begin{itemize}
+        \item Pro: Es ist nicht notwendig auszuwählen, welchen Server wir verwenden, da dies durch die IP-Adresse festgelegt ist.
+        \item Kontra: Das IDS wird keinen Verkehr sehen und würde nur den ausgehenden Verkehr scannen => nicht wirklich hilfreich.
+        \item Idee: Verwendung von IPTables, um den gesamten Ein- und Ausgangsverkehr zunächst über den Pi zu routen?
+    \end{itemize}
+    \item \textbf{Verwendung des Pi als "Proxy":} Den Raspberry Pi als Gateway nach Außen und von außen sein IP-Adresse freigeben\ref{fig:Idee2}
+    \begin{itemize}
+        \item Pro: Ich weiß, wie es geht, und es könnte wirklich einfach sein.
+        \item Kontra: Wie kann man feststellen, welche Verbindungen für den Pi und welche für den Server sind (zum Beispiel: SSH-Verbindung zum Pi oder zum Server)?
+        \item Kontra: Wie kann man feststellen, welchen Pakete an welchen Server weitergeleitet werden sollen, wenn wir mehrere verbundene Server haben?
+        \item Idee: Pi als Reverse Proxy verwenden?
+    \end{itemize}
+    
+    \item \textbf{Erstellen eines eigenen Subnetzes, hinzufügen einer Route zu diesem Netzwerk auf dem Router, um über den Pi darauf zuzugreifen.}\ref{fig:Idee3}
+    \begin{itemize}
+        \item Pro: Könnte sehr einfach sein.
+        \item Pro: Leicht festzustellen, auf welchen Server zugegriffen werden soll.
+        \item Kontra: Wir haben nur eine LAN-Schnittstelle (normalerweise, wenn wir keinen zusätzlichen Adapter verwenden möchten).
+        \item Idee: Einem Adapter mehrere Adressen zuweisen und leiten den gesamten Verkehr zu diesem Subnetz weiterleiten.
+    \end{itemize}
+\end{enumerate}
+\vfil \break
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/Idee1.2.png}
+    \caption{\label{fig:Idee1}Idee 1: Direkt}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/Idee2.png}
+    \caption{\label{fig:Idee2}Idee 2: Proxy}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{assets/Idee3.png}
+    \caption{\label{fig:Idee3}Idee 3: Eigenes Subnetz}
+\end{figure}
+
+\vfil \break
+Unsere gruppe entschied sich für die erste Variante und nutzte die IPTables Erweiterung `tee` um eine Kopie aller eingehender Pakete an den PI zu senden. Selbst wenn dieser ausfällt, arbeitet der Server unbeeinflusst weiter.
+
+\paragraph{Versand per Mail}
+Um über sogenannte Alerts informiert zu werden, lesen wir, ähnlich wie bei AIDE auch, die Lg-Dateien von Suricata mittels eines Python-Skriptes aus und generieren eine E-Mail.
+Die Events der letzten 24h werden dann per Mail an die hinterlegte Adresse versendet.
+
+\subsection{E-Mail}
+Damit ein Systemadministrator Standortunabhängig benachrichtigt werden kann, sind Mails ein sehr guter Weg. Hier gibt es auch schon sehr viele gegebene Möglichkeiten, diese über das Terminal zu versenden. Hier nutzen wir SSMTP. Um Mails zu versenden muss eine Textdatei erstellt werden, die eine bestehende Mail-Adresse und ein zugehöriges Secret enthält. Dann können Mails sehr einfach versendet werden.\ref{fig:mail}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/mail.png}
+    \caption{\label{fig:mail}Screenshot E-Mail von IDS-Pi}
+\end{figure}
+
+\vfil \break
+
+\subsection{Intrusion Prevention}
+Besser als einen Angriff zu entdecken, ist ihn zu verhindern. Die allermeisten Angriffe finden über das Internet statt und oft genug sind dabei bereits bekannte Webseiten im Spiel. Das Blocken von solch bekannten Webseiten kann Angriffe verhindern, bevor sie überhaupt stattgefunden haben. Dazu wird der Server so konfiguriert, dass er seine DNS-Auflösung über den Raspberry Pi abhandelt. Dieser kann mit der Technologie "Pi-Hole" \ref{fig:PiHole} Websites blockieren. Für dieses gibt es umfangreiche Listen mit bekannten, potenziell schädlichen Websites und RegEx-Filter, welche beispielsweise URLS, welche auf `.exe` enden oder nicht Lateinische Buchstaben (`'o' U+006F` aus den Lateinischen Buchstaben und `'o' U+03BF` aus den griechischen Buchstaben) enthalten blockieren.
+
+\subsection{Sonstiges}
+\begin{itemize}
+    \item \textbf{IPTables:} Zusätzlich wurde zum Umgang mit dem Netfilter-Modul das Userspace-Programm IPTables verwendet. Dieses leitet beispielsweise alle eingehenden Pakete auf dem PI durch Suricata und sendet eine Kopie aller Pakete auf dem Server an den Pi.
+    \item \textbf{Cron:} Der Cron-Deamon dient der zeitbasierten Ausführung von Prozessen. Dieser führt täglich die Überprüfung des Servers durch AIDE durch.
+    \item \textbf{Samba:} Dient der zur Verfügung Stellung von Netzwerk-Ressourcen. Beim Teilen von Daten hierüber musste beachtet werden, dass die Samba-Ordner beschrieben werden können und potenziell auch überschrieben werden können. Die Daten, die der Raspberry davon braucht werden also in einen anderen Ordner verschoben.
+    \item \textbf{systemd-resolved:} Dient dem manuellen Anpassen der `/etc/resolve.conf`, welche den PI als DNS-Server deklariert.
+    \item \textbf{Python:} Ist eine sehr mächtige und einfach zu erlernende Scriptsprache. In diesem Projekt, wird sie zum Verarbeiten von Daten verwendet, beispielsweise beim Vorbereiten der Mails und verarbeiten der AIDE-Log-Dateien.
+\end{itemize}
+
+\section{Implementierung}
+
+\subsection{Auf dem Raspberry Pi}
+Die Installation eines IDS-PI ist komplexer und nicht so automatisiert wie für einen server, muss aber auch deutlich seltener durchgeführt werden. Wichtig ist, dass der Zugang zu diesem geschützt ist, da secrets wie private ssh-keys für hochwertige Zugänge auf die server oder Tokens für Mail-Addressen auf diesem gepsichert werden.
+
+Auf dem PI müssen bash-scripts und Konfigurationsdateien abgelegt werden, die wir erstellt haben. Aßerdem müssen cronjobs aufgesetzt werden, die diese ausführen. Für etwa die Installation von Suricata werden weitreichende Berechtigungen benötigt.
+
+Den fertig eingerichteten IDS-Pi in das vorhandene Netz zu integrieren ist sehr einfach. Wenn er mittels LAN verbunden ist, versucht er sich automatisch eine IP mittels DHCP zu holen. Es wäre sinnvoll, ihm beim Router eine feste IP zuzuweisen, da, wenn sich die IP ändert, die hinzugefügten Server mittels AIDE und Pi-Hole nicht mehr überwacht werden. Er fängt automatisch an, alle ihm zugesendeten Pakete mittels Suricata zu analysieren und das Pi-Hole überwacht automatisch alle DNS-Anfragen, welche es bekommt. Zudem überprüft er alle 24 Stunden, ob neue Server für AIDE dazugekommen sind und initialisiert diese automatisch. Im Anschluss werden sie alle 24 Stunden mit AIDE überprüft.
+
+\subsection{Auf dem Server}
+Die Installation auf dem Server wurde mittels eines Installationsskriptes automatisiert. Hier ist es wichtig, dass der Server während der Installation dauerhaft mit dem Internet verbunden bleibt.
+
+\section{Fazit}
+
+\subsection{Evaluation der Arbeit}
+Es war uns möglich sowohl alle Unabdinglichen, als auch alle Optionalen Anforderungen auf die Ein- oder andere Weise zu erfülle. Beispielsweise hatten wir anfangs vor, NIDS über das Pi-Hole laufen zu lassen, oder zu evaluieren, von welchen Dateien wir schon eine Hashsumme haben via Trusted Timestamping. Jedoch haben sich beiden Technologien im Laufe des Projekts für diesen Anwendungsfall als nicht geeignet herausgestellt.
+
+Zudem haben uns vorgenommen, den IDS-Pi auf dem Server einfach und ohne große Änderungen auf dem Server als auch in der vorhandenen Infrastruktur vorzunehmen, zu integrieren. Leider ist uns das nur teilweise gelungen. Durch die Verwendung eines automatisierten Skriptes ist es sehr einfach den Server mit dem IDS-Pi zu verbinden. Auch die Installation eines (fertig eingerichteten) IDS-Pi in einem vorhandenen System ist sehr einfach (Plug and Play) möglich, jedoch verwenden wir sehr viel zusätzliche Software auf dem Server, welche teilweise sehr tief in das System eingreift (Beispiel: IPTables). Auch das Skript ist zwar voll funktionsfähig, jedoch toleriert es keine Fehler (Beispielsweise wenn die Internetverbindung während der Installation abbricht) und nach fehlerhafter Ausführung ist es sehr mühsam, das Skript fortzusetzen oder die Änderungen rückgängig zu machen.
+
+\subsection{Blick in die Zukunft}
+Wir möchten die Einrichtung des IDS-Pi mittels eines Debian-Packages vereinfachen. Dieses könnte man mittels des APT Paketmanagers installieren und hätte einen voll funktionsfähigen IDS-Pi.
+
+Auch in den Bug bei den Netfiltern würden wir uns gerne tiefer einarbeiten und eventuell eine praktikable Lösung finden.
+
+Des weitern wäre hier auch sehr nützlich, wenn anhand der erkannten Daten auch automatisch gehandelt werden kann. Etwa bestimmte IP-Addressen zu blockieren, oder den Server herunterzufahren.
+
+Zuletzt haben wir uns angeschaut, wie man den Raspberry mittels eines Read-Only-Dateisystems und IPTables regeln robuster machen könnte.
+
+
+\vfil \break
+
+\listoffigures
+
+\section{Anlagen}
+
+\includepdf[pages={1,1},scale=1]{assets/Eigenstaendigkeitserklaerung.pdf}
+
+\end{document}
