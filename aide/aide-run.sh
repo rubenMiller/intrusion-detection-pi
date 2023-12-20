@@ -1,48 +1,80 @@
 #!/bin/bash
-# This script runs on the raspberry Pi and starts the check on the server
+# This script runs on the raspberry Pi and starts the script for each server
 
+# Does not fail on error
 
-# fail on error
-set -e
+# Logging
+(
+export DATE=$(date +%F_%T)
+echo "Aide-run at $DATE:"
 
-# This method needs two arguments: the IP of the Server and the IP of the Host
-function runAideForHost() {
-        SERVERIP=$1
-        #TODO this doe snot work that way, change
-        # ssh-connection needs to be working at this point, use certificate
-        # ssh aideuser@$SERVERIP
+# Path to aide dbs, see Steps-Pi.md
+db_dir=/ids/aide/configs
+samba_dir=/ids/host-configs
 
+# IDS-Pi User on Host. Specified in install-script
+pi_user="ids-pi"
 
-        # push the initial database from the raspberry
-        scp ~/recent-aide-db aideuser@$SERVERIP:/aide/aide.db
+echo -e "Dirs:\n\tDB-Dir: $db_dir\n\tSamba-Dir: $samba_dir"
+echo -e "Pi-User: $pi_user"
 
-        # push the aide config from the raspberry
-        scp /etc/aide/aide.conf aideuser@$SERVERIP:~/aide/aide.conf
+# Iterate through files in /ids/host-configs
+echo "Checking for new Hosts..."
+for config_file in "$samba_dir"/*; do
+	if [ -f "$config_file" ]; then
+		# Extract hostname from the config file name
+		hostname=$(basename "$config_file" | sed 's/config-//')
 
-    ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
-        then echo 'Aide needs to be reinstalled!';
-        exit 1;
-        fi;
-        sudo aide --config=/home/$pi_user/aide/aide.conf --init"
-}
-
-# Path to host configs
-config_dir="/ids/host-configs"
-
-# Ip of host
-hostip="$(hostname -I | awk '{print $1}')"
-
-# Loop for all configs in this directory
-for config_file in "$config_dir"/*; do
-    if [ -f "$config_file" ]; then
-        # search for "IP="
-        while IFS= read -r line; do
-            if [[ $line == IP=* ]]; then
-                # Separate the line at "=" and get the IP
-                IFS="=" read -ra parts <<< "$line"
-                runAideForHost ${parts[1]} ${hostip}
-                break
-            fi
-        done < "$config_file"
-    fi
+		# Check if the corresponding folder exists in /ids/aide/aide-dbs
+		aide_folder="$db_dir/$hostname"
+		echo "Current AIDE-Folder: $aide_folder"
+		if [ ! -d "$aide_folder" ]; then
+			# If the folder doesn't exist, create it 
+			echo "Adding new configurations for Host: $hostname."
+			mkdir -p "$aide_folder"
+			mv "$config_file" "$aide_folder/"
+		fi
+	fi
 done
+
+echo "done"
+echo
+
+
+# Loop through the directories in the given path
+echo "Running AIDE for all Hosts..."
+for server_folder in "$db_dir"/*/; do
+	hostname=$(basename "$server_folder")
+
+	host_config_file="$db_dir/$hostname/config-$hostname"
+	aide_folder="$db_dir/$hostname/"
+	echo -e "Currently:\n\tHostname: $hostname\n\tHost-Config-File: $host_config_file\n\tAIDE-Folder: $aide_folder"
+
+	if [ -f "$host_config_file" ]; then
+		echo "Reading config for server: $db_dir$hostname"
+
+		while IFS= read -r line; do
+			if [[ $line == IP=* ]]; then
+				# Separate the line at "=" and get the IP
+				IFS="=" read -ra parts <<< "$line"
+
+				echo "Starting script for Host: ${parts[1]}."
+
+				# Run the runAideForHost.sh script
+				echo "/ids/aide/runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user}"
+				/ids/aide/runAideForHost.sh ${parts[1]} ${aide_folder} ${pi_user}
+
+				echo "Script for Host: ${parts[1]} finished."
+				echo 
+				break
+			fi
+		done < "$host_config_file"
+	else
+		echo "Configuration file $host_config_file not found."
+	fi
+done
+echo "done"
+
+echo -e "Aide-run complete\n\n"
+
+) 2>&1 | tee -a /ids/aide/aide-run.log

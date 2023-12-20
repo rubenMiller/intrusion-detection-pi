@@ -1,82 +1,3 @@
-# Steps
-
-## Pi
-
-- Set up Raspberry
-
-- Create `pi-public` directory
-
-- Generate SSH-Key: `ssh-keygen`
-
-- move to `pi-public` directory
-
-- move aide-confs (`/etc/aide/aide.conf` and `~/aide-init.sh`) to `pi-public`
-
-- Get IP of PI
-
-- Create `configs` directory
-
-- Create smb-share to upload host-configs
-
-```bash
-ssh-keygen
-sudo mkdir -p /ids/host-configs
-sudo mkdir -p /ids/pi-public
-sudo chown -R nobody:nogroup /ids/pi-public
-sudo chmod -R 777 /ids/pi-public
-cp ~/.ssh/id_rsa.pub /ids/pi-public
-sudo chown -R nobody:nogroup /ids/host-configs
-sudo chmod -R 777 /ids/host-configs/
-sudo apt-get install samba samba-common-bin
-sudo nano /etc/samba/smb.conf
-# after below:
-sudo smbpasswd -a ids-pi # 'nG4AghLw' is password. Errors can be ignored
-sudo service smbd restart
-```
-
-```text
-[configs]
-   path = /ids/host-configs
-   writeable = yes
-   browsable = no
-   guest ok = yes
-   guest account = ids-pi
-
-[pi-public]
-   path = /ids/pi-public
-   writeable = no
-   browsable = yes
-   guest ok = yes
-   guest account = ids-pi
-```
-
-Comments to the above:
-
-A smb-share to upload the host-configs
-
-## Server
-
-- Set up Server
-
-### Script
-
-- Read IP of PI
-
-- Add new User for IDS-PI
-  
-  - Don't need home?
-  
-  - Needs Read-Permissions for all necessary files
-
-- Get SSH-key from IDS-Pi so it can log in under it's IDS-Pi user
-
-- Tell Pi IP, Hostname and necessary files of Server
-
-- Set DNS to Address of PI
-
-- Set gateway to IP of Pi
-
-```bash
 #!/bin/bash
 # set -x # Debugging: Print command before printing
 # Exit on error
@@ -86,6 +7,8 @@ set -e
 read -p "Please enter the IP-Address of the IDS-PI: " pi_ip
 
 echo "Installing requirements... "
+# we need to get the nameserver, before installing systemd-resolved
+old_dns="$(cat /etc/resolv.conf |grep nameserver | cut -f 2 -d ' ')"
 # Requirements: smbclient, 
 sudo apt update
 sudo apt install smbclient iptables iptables-persistent sudo acl systemd-resolved aide #-y can be added to automate
@@ -104,7 +27,7 @@ sudo usermod -L $pi_user  # Locks the account
 # Give him some permissions
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/aide" >> /etc/sudoers'
 sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /usr/bin/dpkg -V" >> /etc/sudoers'
-sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /bin/chown -R $pi_user /home/" >> /etc/sudoers'
+sudo pi_user=$pi_user bash -c 'echo "$pi_user ALL = NOPASSWD: /bin/chown -R $pi_user /home/$pi_user/*" >> /etc/sudoers'
 
 sudo -u $pi_user mkdir /home/$pi_user/aide/
 sudo setfacl -m $pi_user:r-x /home/$pi_user/aide/
@@ -162,9 +85,8 @@ echo
 
 echo "Setting up PiHole..."
 # Set Pi as DNS
-old_dns="$(resolvectl --no-pager |grep Server |cut -d " " -f 6)"
 sudo pi_ip=$pi_ip /bin/bash -c "echo 'DNS=$pi_ip' >> /etc/systemd/resolved.conf"
-#sudo old_dns=$old_dna /bin/bash -c "echo 'FallbackDNS=$old_dns' >> /etc/systemd/resolved.conf"
+sudo old_dns=$old_dna /bin/bash -c "echo 'FallbackDNS=$old_dns' >> /etc/systemd/resolved.conf"
 sudo service systemd-resolved restart
 
 echo "Done!"
@@ -172,12 +94,3 @@ echo
 
 
 echo "All done!"
-```
-
-Hint: If there are errors with this script, use `dos2unix`
-
-## Further reading
-
-[Linux + how to give only specific user to read the file - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/401207/linux-how-to-give-only-specific-user-to-read-the-file)
-
-[resolv.conf - Debian Wiki](https://wiki.debian.org/resolv.conf)

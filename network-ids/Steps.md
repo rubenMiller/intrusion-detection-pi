@@ -91,7 +91,9 @@ sudo suricata -T -c /etc/suricata/suricata.yaml -v
    10/23/2023-18:08:24.853327  [**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 18.66.122.21:80 -> 192.168.178.84:44064
    ```
 
-## Traffic forwarding
+For this to work, we need `iptables`. Further investigations needed!
+
+## Traffic forwarding (outdated)
 
 That the clients have internet, the Raspberry needs to be configurated to forward the Traffic.
 
@@ -221,6 +223,7 @@ input:
   paths:
     - "/var/log/suricata/eve.json"
     - "/var/log/suricata/eve.*.json"
+    - "/ids/aide/output-eve.json"
 ```
 
 ```bash
@@ -255,3 +258,26 @@ sudo -u evebox RUST_BACKTRACE=1 RUST_BACKTRACE=full evebox server -c /etc/evebox
 sudo -u evebox evebox server -D /var/lib/evebox --datastore sqlite --input /var/log/suricata/eve.json
 # Test if evebox works with this specific configuration. Note, WOthout exposing host, you can only access it local
 ```
+
+## Checking Traffic
+
+Since checking the Traffic by routing all the Traffic through the Pi offered some unexpected Problems, we tried to resolve them using the first method: we copy all incoming and outgoing packages from the Server to the Pi using IPTables tee [iptables-extensions](https://ipset.netfilter.org/iptables-extensions.man.html). This makes [Traffic forwarding (outdated)](#traffic-forwarding(outdated)) outdated. 
+
+Since Suricata is still setup and the Pi won't forward traffic by itself (unless we tell him to), it should work, just like this: 
+
+(Server NOT Pi)
+
+```bash
+iptables -t mangle -A PREROUTING -j TEE --gateway <Raspberry_IP>
+iptables -t mangle -A POSTROUTING -j TEE --gateway <Raspberry_IP>
+```
+
+if it works, just use `iptables-persistent` to make changes persistent. This has several advantages: 
+
+- We won`t route anything
+
+- The network-infrastructure stays the same
+
+- nothing depends on the availability of the Pi
+
+- Minimum more load on the network

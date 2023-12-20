@@ -3,10 +3,9 @@
 ## On server
 
 ```bash
+pi_user="ids-pi"
 
-pi_user="pi-user"
-
-useradd -m -s /bin/bash -g users -G sudo -p $(openssl passwd -1 password) $pi_user
+useradd -m -s /bin/bash -N -G sudo -p $(openssl passwd -1 password) $pi_user
 su $pi_user
 sudo mkdir /aide/
 sudo chown $pi_user /aide/
@@ -29,14 +28,14 @@ pi-user ALL = NOPASSWD: /usr/bin/dpkg -V
 ## On pi
 
 ```bash
-pi_user="pi-user"
+pi_user="ids-pi"
 SERVERIP="192..."
 
 ssh-copy-id -i ~/.ssh/id_rsa.pub $pi_user@$SERVERIP
 
 # push the aide config from the raspberry
 scp /etc/aide/aide.conf $pi_user@$SERVERIP:~/aide/aide.conf
-scp ~/aide-init.sh $pi_user@$SERVERIP:~/aide/init.sh
+#scp ~/aide-init.sh $pi_user@$SERVERIP:~/aide/init.sh
 
 ssh $pi_user@$SERVERIP "dpkg -V aide; if [ $? -ne 0 ];
     then echo 'Aide needs to be reinstalled!';
@@ -48,4 +47,11 @@ mkdir ~/aide-dbs/
 export DATE=$(date +%F_%T)
 scp $pi_user@$SERVERIP:/aide/aide.db.new ~/aide-dbs/aide-$DATE.db
 ln -s ~/aide-dbs/aide-$DATE.db ~/recent-aide-db
+
+
+# set up cronjob to run every day at 2 am
+crontab -e 
+
+# Add this line
+0 2 * * * /path/to/aide-run.sh
 ```

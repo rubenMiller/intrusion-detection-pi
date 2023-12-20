@@ -1,0 +1,10 @@
+braucht 
+
+connect to server
+    ssh sollte eingerichtet sein
+dpkg -V aide
+    verify integrity of aide installation on the host
+erstellen einer db
+    gibt es schon eine, die sicher auf dem RaspPi gepeichert ist?
+    wenn Nein -> erstellen der initiallen DB
+vergleichen der neuen db mit dem initialen Stand
