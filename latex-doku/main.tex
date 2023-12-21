@@ -42,7 +42,7 @@ Im folgenden sind die Anforderungen beschrieben, die wir uns für unser Projekt 
 \subsubsection{File Based Intrusion Detection}
 Ein erfolgreicher Angriff hinterlässt spuren im System. Diese können sehr gut versteckt werden, etwa im Code von bestehenden Anwendungen.
 
-Das Tool "AIDE" kann solche Angriffe jedoch aufdecken. Da dies einen sehr großen Teil von ausgeführten Angriffen erkennen kann, war dies uns sehr wichtig.
+Das Tool ``AIDE'' kann solche Angriffe jedoch aufdecken. Da dies einen sehr großen Teil von ausgeführten Angriffen erkennen kann, war dies uns sehr wichtig.
 
 \subsubsection{Network Intrusion Detection}
 Bevor ein Angriff lokale Dateien verändern kann, muss der Angreifer (meistens) erst über das Netzwerk gehen. Wird der Angriff schon dort erkannt, kann dieser schon schneller verhindert werden, und so etwa der Raub von Daten oder anderem verhindert werden. Aus diesem Grund war es uns sehr wichtig, auch diesen Teil mit unserem Projekt abzudecken.
@@ -55,7 +55,7 @@ Wurde ein Angriff entdeckt, sollte gehandelt werden. Was genau zu tun ist, ist o
 \subsection{Optionale Anforderungen}
 \subsubsection{Oberflächen}
 \paragraph{Evebox}
-Evebox ist ein Suricata Alert- und Eventmanagement Tool für die Suricata IDS/NSM-Engine. Wir haben das Tool erweitert, um auch die Warnungen von AIDE anzeigen zu können. \ref{fig:EveBox}
+Evebox ist ein Suricata Alert- und Eventmanagement Tool für die Suricata IDS/NSM-Engine. Wir haben das Tool erweitert, um auch die Warnungen von AIDE anzeigen zu können. [\ref{fig:EveBox}]
 
 Viele Webseiten, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Das fällt unter Intrusion Prevention.
 
@@ -66,7 +66,7 @@ Viele Webseiten, über die schädliche Handlungen geschehen sind bekannt. Mit Pi
 \end{figure}
 
 \paragraph{Pi-Hole}
-Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Sei es durch Manipulation oder sozial Engineering. \ref{fig:PiHole}
+Viele Website, über die schädliche Handlungen geschehen sind bekannt. Mit Pi-Hole kann verhindert werden, dass der Server überhaupt auf diese zugreift. Sei es durch Manipulation oder sozial Engineering. [\ref{fig:PiHole}]
 
 \begin{figure}[ht]
     \centering
@@ -80,7 +80,7 @@ SSH bietet eine einfache und sichere Verbindung. Deswegen nutzen wir diese, um B
 
 \subsection{Raspberry Pi}
 
-Ein Raspberry Pi ist ein ARM-basierter Einplatinencomputer mit einem Ein-Chip-System von Broadcom. Er ist klein und weit verbreitet, deswegen bietet er sich sehr gut an, um die Basis für unser Projekt zu sein.\ref{fig:Raspberry} Auch Technologien wie Pi-Hole waren darauf einfach umzusetzen. 
+Ein Raspberry Pi ist ein ARM-basierter Einplatinencomputer mit einem Ein-Chip-System von Broadcom. Er ist klein und weit verbreitet, deswegen bietet er sich sehr gut an, um die Basis für unser Projekt zu sein. [\ref{fig:Raspberry}] Auch Technologien wie Pi-Hole waren darauf einfach umzusetzen. 
 \begin{figure}
     \centering
     \includegraphics[width=0.4\textwidth]{assets/RaspberryPi.png}
@@ -100,7 +100,7 @@ Vorab der kompakte Ablauf, später mehr Details und Herausforderungen und ihre L
 
 AIDE läuft bei uns als Cronjob jeden Morgen um 2:00.
 Bei der ersten Ausführung von Aide auf einem Host wird eine Datenbank erstellt. Diese enthält Haswerte für Dateien und Ordner. Bei jeder weiteren Ausführung wird auch eine Datenbank für dem momentanen Stand erstellt und mit der vor 24 Stunden verglichen.
-Die erkannten Veränderungen werden dann geloggt und per Mail versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt. \ref{fig:AIDE}
+Die erkannten Veränderungen werden dann geloggt und per Mail versand, beziehungsweise im JSON-Format in eine Logdatei geschrieben, welche Evebox darstellt. [\ref{fig:AIDE}]
 
 \paragraph{Ausführung von AIDE}
 Die Berechnung der Hashwerte ist aufwendig. Deswegen sollte dies zu einem Zeitpunkt gemacht werden, in dem der Host Ressourcen zur Verfügung hat. Der Raspberry startet deswegen jeden Tag ab 2:00 die Erstellung der Datenbanken auf den Hosts.
@@ -124,7 +124,7 @@ Die Events der letzten 24h werden dann per Mail an die hinterlegte Adresse verse
     \includegraphics[width=0.4\textwidth]{assets/Suricata.png}
     \caption[\href{https://suricata.io/wp-content/uploads/2021/01/Logo-FINAL_Vertical_Color_Whitetext.png}{Logo Suricata von Suricata}]{\label{fig:Suricata}Logo Suricata}
 \end{figure}
-Um Angriffe frühzeitig zu erkennen, insbesondere bevor sie lokale Dateien verändern können, setzen wir auf Network Intrusion Detection (NID) mit Suricata. Suricata ist eine leistungsfähige Open-Source-Software, die Netzwerkverkehr analysiert und nach potenziell schädlichem Verhalten sucht.\ref{fig:Suricata}
+Um Angriffe frühzeitig zu erkennen, insbesondere bevor sie lokale Dateien verändern können, setzen wir auf Network Intrusion Detection (NID) mit Suricata. Suricata ist eine leistungsfähige Open-Source-Software, die Netzwerkverkehr analysiert und nach potenziell schädlichem Verhalten sucht. [\ref{fig:Suricata}]
 
 \paragraph{Funktionsweise von Suricata}
 Suricata arbeitet auf der Ebene des Netzwerkverkehrs und überwacht den Datenfluss in Echtzeit. Dabei nutzt es verschiedene Methoden, um Anomalien oder verdächtige Aktivitäten zu identifizieren:
@@ -141,13 +141,13 @@ Suricata arbeitet auf der Ebene des Netzwerkverkehrs und überwacht den Datenflu
 Bei der Integration in die bestehende Infrastruktur eines Netzwerks gab es zahlreiche Herausforderungen. Suricata sollte den gesamten Datenverkehr des Servers analysieren können, jedoch sollte der Server nicht von dem Raspberry als Knotenpunkt abhängig sein. Hierzu hat unsere Gruppe drei verschiedene Herangehensweisen erarbeitet:
 
 \begin{enumerate}
-    \item \textbf{Direkte Verbindung zum Server aus dem Netzwerk}\ref{fig:Idee1}
+    \item \textbf{Direkte Verbindung zum Server aus dem Netzwerk} [\ref{fig:Idee1}]
     \begin{itemize}
         \item Pro: Es ist nicht notwendig auszuwählen, welchen Server wir verwenden, da dies durch die IP-Adresse festgelegt ist.
-        \item Kontra: Das IDS wird keinen Verkehr sehen und würde nur den ausgehenden Verkehr scannen => nicht wirklich hilfreich.
+        \item Kontra: Das IDS wird keinen Verkehr sehen und würde nur den ausgehenden Verkehr scannen =\textgreater  nicht wirklich hilfreich.
         \item Idee: Verwendung von IPTables, um den gesamten Ein- und Ausgangsverkehr zunächst über den Pi zu routen?
     \end{itemize}
-    \item \textbf{Verwendung des Pi als "Proxy":} Den Raspberry Pi als Gateway nach Außen und von außen sein IP-Adresse freigeben\ref{fig:Idee2}
+    \item \textbf{Verwendung des Pi als ``Proxy'':} Den Raspberry Pi als Gateway nach Außen und von außen sein IP-Adresse freigeben. [\ref{fig:Idee2}]
     \begin{itemize}
         \item Pro: Ich weiß, wie es geht, und es könnte wirklich einfach sein.
         \item Kontra: Wie kann man feststellen, welche Verbindungen für den Pi und welche für den Server sind (zum Beispiel: SSH-Verbindung zum Pi oder zum Server)?
@@ -155,7 +155,7 @@ Bei der Integration in die bestehende Infrastruktur eines Netzwerks gab es zahlr
         \item Idee: Pi als Reverse Proxy verwenden?
     \end{itemize}
     
-    \item \textbf{Erstellen eines eigenen Subnetzes, hinzufügen einer Route zu diesem Netzwerk auf dem Router, um über den Pi darauf zuzugreifen.}\ref{fig:Idee3}
+    \item \textbf{Erstellen eines eigenen Subnetzes, hinzufügen einer Route zu diesem Netzwerk auf dem Router, um über den Pi darauf zuzugreifen.} [\ref{fig:Idee3}]
     \begin{itemize}
         \item Pro: Könnte sehr einfach sein.
         \item Pro: Leicht festzustellen, auf welchen Server zugegriffen werden soll.
@@ -191,7 +191,7 @@ Um über sogenannte Alerts informiert zu werden, lesen wir, ähnlich wie bei AID
 Die Events der letzten 24h werden dann per Mail an die hinterlegte Adresse versendet.
 
 \subsection{E-Mail}
-Damit ein Systemadministrator Standortunabhängig benachrichtigt werden kann, sind Mails ein sehr guter Weg. Hier gibt es auch schon sehr viele gegebene Möglichkeiten, diese über das Terminal zu versenden. Hier nutzen wir SSMTP. Um Mails zu versenden muss eine Textdatei erstellt werden, die eine bestehende Mail-Adresse und ein zugehöriges Secret enthält. Dann können Mails sehr einfach versendet werden.\ref{fig:mail}
+Damit ein Systemadministrator Standortunabhängig benachrichtigt werden kann, sind Mails ein sehr guter Weg. Hier gibt es auch schon sehr viele gegebene Möglichkeiten, diese über das Terminal zu versenden. Hier nutzen wir SSMTP. Um Mails zu versenden muss eine Textdatei erstellt werden, die eine bestehende Mail-Adresse und ein zugehöriges Secret enthält. Dann können Mails sehr einfach versendet werden. [\ref{fig:mail}]
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{assets/mail.png}
@@ -201,14 +201,14 @@ Damit ein Systemadministrator Standortunabhängig benachrichtigt werden kann, si
 \vfil \break
 
 \subsection{Intrusion Prevention}
-Besser als einen Angriff zu entdecken, ist ihn zu verhindern. Die allermeisten Angriffe finden über das Internet statt und oft genug sind dabei bereits bekannte Webseiten im Spiel. Das Blocken von solch bekannten Webseiten kann Angriffe verhindern, bevor sie überhaupt stattgefunden haben. Dazu wird der Server so konfiguriert, dass er seine DNS-Auflösung über den Raspberry Pi abhandelt. Dieser kann mit der Technologie "Pi-Hole" \ref{fig:PiHole} Websites blockieren. Für dieses gibt es umfangreiche Listen mit bekannten, potenziell schädlichen Websites und RegEx-Filter, welche beispielsweise URLS, welche auf `.exe` enden oder nicht Lateinische Buchstaben (`'o' U+006F` aus den Lateinischen Buchstaben und `'o' U+03BF` aus den griechischen Buchstaben) enthalten blockieren.
+Besser als einen Angriff zu entdecken, ist ihn zu verhindern. Die allermeisten Angriffe finden über das Internet statt und oft genug sind dabei bereits bekannte Webseiten im Spiel. Das Blocken von solch bekannten Webseiten kann Angriffe verhindern, bevor sie überhaupt stattgefunden haben. Dazu wird der Server so konfiguriert, dass er seine DNS-Auflösung über den Raspberry Pi abhandelt. Dieser kann mit der Technologie ``Pi-Hole'' [\ref{fig:PiHole}] Websites blockieren. Für dieses gibt es umfangreiche Listen mit bekannten, potenziell schädlichen Websites und RegEx-Filter, welche beispielsweise URLS, welche auf `.exe' enden oder nicht Lateinische Buchstaben (`o' U+006F` aus den Lateinischen Buchstaben und `o' U+03BF` aus den griechischen Buchstaben) enthalten blockieren.
 
 \subsection{Sonstiges}
 \begin{itemize}
     \item \textbf{IPTables:} Zusätzlich wurde zum Umgang mit dem Netfilter-Modul das Userspace-Programm IPTables verwendet. Dieses leitet beispielsweise alle eingehenden Pakete auf dem PI durch Suricata und sendet eine Kopie aller Pakete auf dem Server an den Pi.
     \item \textbf{Cron:} Der Cron-Deamon dient der zeitbasierten Ausführung von Prozessen. Dieser führt täglich die Überprüfung des Servers durch AIDE durch.
     \item \textbf{Samba:} Dient der zur Verfügung Stellung von Netzwerk-Ressourcen. Beim Teilen von Daten hierüber musste beachtet werden, dass die Samba-Ordner beschrieben werden können und potenziell auch überschrieben werden können. Die Daten, die der Raspberry davon braucht werden also in einen anderen Ordner verschoben.
-    \item \textbf{systemd-resolved:} Dient dem manuellen Anpassen der `/etc/resolve.conf`, welche den PI als DNS-Server deklariert.
+    \item \textbf{systemd-resolved:} Dient dem manuellen Anpassen der `/etc/resolve.conf', welche den PI als DNS-Server deklariert.
     \item \textbf{Python:} Ist eine sehr mächtige und einfach zu erlernende Scriptsprache. In diesem Projekt, wird sie zum Verarbeiten von Daten verwendet, beispielsweise beim Vorbereiten der Mails und verarbeiten der AIDE-Log-Dateien.
 \end{itemize}
 
